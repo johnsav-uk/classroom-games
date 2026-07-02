@@ -3,64 +3,178 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Classroom Games</title>
+<title>Mr. Savage's House of Games</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --bg1:#0b3070; --bg2:#061f47; --bg3:#0a2456;
-    --yellow:#ffd21e; --amber:#ff9426;
-    --text:#eaf2ff; --muted:#9fb6df;
-    --panel:#0c2453; --panel-edge:#1c3f7e;
-  }
-  *{box-sizing:border-box}
-  body{
-    margin:0;min-height:100vh;color:var(--text);
-    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
-    background:linear-gradient(180deg,var(--bg1) 0%, var(--bg2) 55%, var(--bg3) 100%);
-    padding:40px 16px 60px;display:flex;flex-direction:column;align-items:center;
-  }
-  h1{font-size:clamp(28px,5vw,44px);margin:0 0 6px;text-align:center;letter-spacing:.5px}
-  .sub{color:var(--muted);margin-bottom:36px;text-align:center;font-size:14px;letter-spacing:1px;text-transform:uppercase}
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;width:100%;max-width:900px}
-  .card{
-    background:linear-gradient(180deg,var(--panel),#0a1f49);
-    border:1.5px solid var(--panel-edge);border-radius:14px;padding:22px 20px;
-    text-decoration:none;color:var(--text);transition:transform .15s ease,border-color .15s ease;
-  }
-  .card:hover{transform:translateY(-3px);border-color:var(--amber)}
-  .card .tag{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--amber);margin-bottom:8px}
-  .card h2{margin:0 0 6px;font-size:20px}
-  .card p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.4}
+:root{
+  --stage1:#0b3070; --stage2:#061f47; --stage3:#0a2456;
+  --yellow:#ffd21e; --yellow-edge:#b88a00; --yellow-glow:rgba(255,210,30,.5);
+  --amber:#ff9426;
+  --text:#eaf2ff; --muted:#9fb6df;
+  --panel:#0c2453; --panel-edge:#1c3f7e;
+  --display:'Archivo Black','Arial Black',system-ui,sans-serif;
+  --body:'Space Grotesk',system-ui,-apple-system,'Segoe UI',sans-serif;
+
+  --quiz:#e8a020; --quiz-edge:#a66f10;
+  --lang:#1ba8a0; --lang-edge:#0e6b66;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;min-height:100vh;color:var(--text);
+  font-family:var(--body);
+  background:
+    radial-gradient(120% 80% at 50% -10%, rgba(120,180,255,.2), transparent 60%),
+    radial-gradient(90% 70% at 50% 120%, rgba(0,0,0,.45), transparent 55%),
+    linear-gradient(180deg,var(--stage1) 0%, var(--stage2) 55%, var(--stage3) 100%);
+  padding:44px 16px 64px;display:flex;flex-direction:column;align-items:center;
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:repeating-linear-gradient(0deg, rgba(255,255,255,.025) 0 1px, transparent 1px 3px);
+  mix-blend-mode:overlay;opacity:.5;
+}
+.wrap{position:relative;z-index:1;width:100%;max-width:1000px;display:flex;flex-direction:column;align-items:center}
+
+/* ---- marquee title ---- */
+.marquee{
+  position:relative;text-align:center;margin-bottom:8px;padding:34px 40px 30px;border-radius:20px;
+  background:radial-gradient(70% 140% at 50% 50%, #1a4fb0 0%, #0c2e73 55%, #071b47 100%);
+  box-shadow:0 18px 50px rgba(0,0,0,.45), inset 0 0 0 2px rgba(255,255,255,.08);
+  overflow:hidden;
+}
+.bulbs{position:absolute;inset:0;border-radius:20px;pointer-events:none}
+.bulbs span{
+  position:absolute;width:8px;height:8px;border-radius:50%;background:var(--yellow);
+  box-shadow:0 0 8px 2px var(--yellow-glow);animation:blink 1.6s infinite ease-in-out;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+.marquee h1{
+  font-family:var(--display);font-size:clamp(28px,5.6vw,48px);margin:0;line-height:1.15;
+  color:#fff;text-shadow:0 3px 10px rgba(0,0,0,.55);letter-spacing:.5px;position:relative;
+}
+.marquee h1 .savage{color:var(--yellow);text-shadow:0 0 24px var(--yellow-glow)}
+.marquee .sub{
+  margin-top:12px;font-size:12.5px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);
+  font-weight:500;position:relative;
+}
+
+.hostline{
+  display:flex;align-items:center;gap:10px;margin:22px 0 30px;color:var(--muted);
+  font-size:13px;letter-spacing:1px;text-transform:uppercase;
+}
+.hostline .dash{width:36px;height:1.5px;background:var(--panel-edge)}
+
+/* ---- section labels ---- */
+.section{width:100%;margin-top:8px}
+.section-label{
+  font-family:var(--display);font-size:13px;letter-spacing:2px;color:var(--amber);text-transform:uppercase;
+  margin:0 0 14px;display:flex;align-items:center;gap:10px;
+}
+.section-label .dash{flex:1;height:1.5px;background:var(--panel-edge)}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px;width:100%;margin-bottom:30px}
+.card{
+  position:relative;background:linear-gradient(180deg,var(--panel),#0a1f49);
+  border:1.5px solid var(--panel-edge);border-radius:14px;padding:22px 20px 20px;
+  text-decoration:none;color:var(--text);transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease;
+  overflow:hidden;
+}
+.card::after{
+  content:"";position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--tint,var(--amber)),transparent);
+}
+.card:hover{transform:translateY(-4px);border-color:var(--tint,var(--amber));box-shadow:0 12px 30px rgba(0,0,0,.35)}
+.card .tag{
+  display:inline-block;font-size:10.5px;letter-spacing:2px;text-transform:uppercase;
+  color:var(--tint-ink,#231100);background:var(--tint,var(--amber));
+  padding:3px 9px;border-radius:20px;margin-bottom:12px;font-weight:700;
+}
+.card h2{margin:0 0 7px;font-size:19px;font-family:var(--body);font-weight:700}
+.card p{margin:0;color:var(--muted);font-size:13px;line-height:1.5}
+.card .play{
+  margin-top:14px;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--tint,var(--amber));
+  font-weight:700;display:flex;align-items:center;gap:6px;
+}
+.card:hover .play{gap:9px}
+.card .play svg{transition:transform .15s ease}
+.card:hover .play svg{transform:translateX(2px)}
+
+footer{margin-top:10px;color:var(--muted);font-size:11.5px;letter-spacing:1px;text-align:center}
 </style>
 </head>
 <body>
-  <h1>Classroom Games</h1>
-  <div class="sub">Pick a game to play</div>
-  <div class="grid">
-    <a class="card" href="games/science-jeopardy.html">
-      <div class="tag">Quiz</div>
-      <h2>Science Jeopardy</h2>
-      <p>Board-style science quiz with categories and point values.</p>
-    </a>
-    <a class="card" href="games/science-blockbusters.html">
-      <div class="tag">Quiz</div>
-      <h2>Science Blockbusters</h2>
-      <p>Blockbusters-style hexagon board science quiz.</p>
-    </a>
-    <a class="card" href="games/tenable-science.html">
-      <div class="tag">Quiz</div>
-      <h2>Tenable Science</h2>
-      <p>Tenable-style science recall challenge.</p>
-    </a>
-    <a class="card" href="games/french-connect4.html">
-      <div class="tag">Language</div>
-      <h2>French Connect 4</h2>
-      <p>Connect 4 with French vocabulary questions.</p>
-    </a>
-    <a class="card" href="games/german-connect4.html">
-      <div class="tag">Language</div>
-      <h2>German Connect 4</h2>
-      <p>Connect 4 with German vocabulary questions.</p>
-    </a>
+<div class="wrap">
+
+  <div class="marquee">
+    <div class="bulbs" id="bulbs"></div>
+    <h1>MR. <span class="savage">SAVAGE'S</span><br>HOUSE OF GAMES</h1>
+    <div class="sub">Step right up — pick your challenge</div>
   </div>
+
+  <div class="hostline"><span class="dash"></span> Live from the classroom <span class="dash"></span></div>
+
+  <div class="section">
+    <p class="section-label">Quiz Round <span class="dash"></span></p>
+    <div class="grid">
+      <a class="card" style="--tint:var(--quiz);--tint-ink:#241606" href="games/science-jeopardy.html">
+        <span class="tag">Quiz</span>
+        <h2>Science Jeopardy</h2>
+        <p>Board-style science quiz with categories and point values.</p>
+        <div class="play">Play now <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M1 5H13M13 5L9 1M13 5L9 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </a>
+      <a class="card" style="--tint:var(--quiz);--tint-ink:#241606" href="games/science-blockbusters.html">
+        <span class="tag">Quiz</span>
+        <h2>Science Blockbusters</h2>
+        <p>Blockbusters-style hexagon board science quiz.</p>
+        <div class="play">Play now <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M1 5H13M13 5L9 1M13 5L9 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </a>
+      <a class="card" style="--tint:var(--quiz);--tint-ink:#241606" href="games/tenable-science.html">
+        <span class="tag">Quiz</span>
+        <h2>Tenable Science</h2>
+        <p>Tenable-style science recall challenge.</p>
+        <div class="play">Play now <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M1 5H13M13 5L9 1M13 5L9 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </a>
+    </div>
+  </div>
+
+  <div class="section">
+    <p class="section-label">Language Round <span class="dash"></span></p>
+    <div class="grid">
+      <a class="card" style="--tint:var(--lang);--tint-ink:#04211f" href="games/french-connect4.html">
+        <span class="tag">Language</span>
+        <h2>French Connect 4</h2>
+        <p>Puissance 4 — classic Connect 4 with French vocabulary questions.</p>
+        <div class="play">Play now <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M1 5H13M13 5L9 1M13 5L9 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </a>
+      <a class="card" style="--tint:var(--lang);--tint-ink:#04211f" href="games/german-connect4.html">
+        <span class="tag">Language</span>
+        <h2>German Connect 4</h2>
+        <p>Vier Gewinnt — classic Connect 4 with German vocabulary questions.</p>
+        <div class="play">Play now <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M1 5H13M13 5L9 1M13 5L9 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </a>
+    </div>
+  </div>
+
+  <footer>Mr. Savage's House of Games &mdash; classroom edition</footer>
+</div>
+
+<script>
+const bulbs=document.getElementById('bulbs');
+const n=28;
+for(let i=0;i<n;i++){
+  const s=document.createElement('span');
+  const t=i/n;
+  const angle=t*Math.PI;
+  const x=6+t*88;
+  const yTop = 6 + Math.sin(angle)*3;
+  const onTop = i%2===0;
+  s.style.left=x+'%';
+  s.style.top = onTop ? '10px' : 'calc(100% - 16px)';
+  s.style.animationDelay=(i*0.09)+'s';
+  bulbs.appendChild(s);
+}
+</script>
 </body>
 </html>
