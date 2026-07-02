@@ -254,46 +254,166 @@ body::before{
 <script>
 const DATA=[
   {cat:"Cell Biology, Organisation & Digestion", qs:[
-    {pts:100, clue:"This is the basic structural and functional unit of all living organisms.", resp:"What is a cell?"},
-    {pts:200, clue:"This is the name given to a group of different tissues working together to carry out a specific job, such as the stomach or the heart.", resp:"What is an organ?"},
-    {pts:300, clue:"This process breaks down large, insoluble food molecules into smaller, soluble ones that can be absorbed into the blood.", resp:"What is digestion?"},
-    {pts:400, clue:"This type of cell division produces two genetically identical daughter cells, used in the body for growth and repair.", resp:"What is mitosis?", note:"Full marks require \u201cgenetically identical\u201d and a correct function (growth/repair) \u2014 students often confuse this with meiosis if they only say \u201ccell division.\u201d"},
-    {pts:500, clue:"Using magnification = image size \u00f7 actual size, calculate the magnification of a cell drawn 15 mm long, if its actual length is 0.03 mm.", resp:"What is \u00d7500?", note:"Method mark for correct formula and unit conversion (both measurements in mm): 15 \u00f7 0.03 = 500. Final mark requires \u201c\u00d7500\u201d with no units \u2014 a common error is leaving units on the answer."}
+    [
+      {pts:100, clue:"This is the basic structural and functional unit of all living organisms.", resp:"What is a cell?"},
+      {pts:100, clue:"This term describes a group of similar cells working together to perform a shared function.", resp:"What is a tissue?"},
+      {pts:100, clue:"This structure controls the movement of substances into and out of the cell.", resp:"What is the cell membrane?"}
+    ],
+    [
+      {pts:200, clue:"This is the name given to a group of different tissues working together to carry out a specific job, such as the stomach or the heart.", resp:"What is an organ?"},
+      {pts:200, clue:"This jelly-like substance fills the cell and is where many chemical reactions take place.", resp:"What is cytoplasm?"},
+      {pts:200, clue:"This is the name for a group of organs working together to perform a particular job, such as the digestive system.", resp:"What is an organ system?"}
+    ],
+    [
+      {pts:300, clue:"This process breaks down large, insoluble food molecules into smaller, soluble ones that can be absorbed into the blood.", resp:"What is digestion?"},
+      {pts:300, clue:"This enzyme, found in saliva and the small intestine, breaks down starch into sugars.", resp:"What is amylase?"},
+      {pts:300, clue:"This organ produces bile, which emulsifies fats to aid digestion.", resp:"What is the liver?"}
+    ],
+    [
+      {pts:400, clue:"This type of cell division produces two genetically identical daughter cells, used in the body for growth and repair.", resp:"What is mitosis?", note:"Full marks require \u201cgenetically identical\u201d and a correct function (growth/repair) \u2014 students often confuse this with meiosis if they only say \u201ccell division.\u201d"},
+      {pts:400, clue:"This type of cell division produces four genetically different daughter cells with half the usual chromosome number, used to make gametes.", resp:"What is meiosis?", note:"Contrast with mitosis \u2014 meiosis halves the chromosome number and introduces genetic variation."},
+      {pts:400, clue:"This term describes unspecialised cells that can differentiate into different cell types.", resp:"What are stem cells?"}
+    ],
+    [
+      {pts:500, clue:"Using magnification = image size \u00f7 actual size, calculate the magnification of a cell drawn 15 mm long, if its actual length is 0.03 mm.", resp:"What is \u00d7500?", note:"Method mark for correct formula and unit conversion (both measurements in mm): 15 \u00f7 0.03 = 500. Final mark requires \u201c\u00d7500\u201d with no units \u2014 a common error is leaving units on the answer."},
+      {pts:500, clue:"Using magnification = image size \u00f7 actual size, calculate the actual size of a cell if its image is 20 mm and the magnification is \u00d7200.", resp:"What is 0.1 mm?", note:"Method mark for rearranging: actual size = image size \u00f7 magnification = 20 \u00f7 200 = 0.1 mm."},
+      {pts:500, clue:"Explain why villi in the small intestine have a large surface area, in terms of digestion and absorption.", resp:"What is: to increase the rate of diffusion of digested food into the blood?", note:"Key idea: larger surface area increases the rate of diffusion/absorption of nutrients."}
+    ]
   ]},
   {cat:"Human Body Systems & Health", qs:[
-    {pts:100, clue:"This muscular organ pumps blood around the entire body.", resp:"What is the heart?"},
-    {pts:200, clue:"This type of blood vessel carries blood away from the heart, usually under high pressure.", resp:"What is an artery?"},
-    {pts:300, clue:"These tiny air sacs in the lungs are the site of gas exchange, where oxygen diffuses into the blood.", resp:"What are alveoli?"},
-    {pts:400, clue:"This hormone, released by the pancreas, lowers blood glucose concentration by causing cells to take up glucose and the liver to store it as glycogen.", resp:"What is insulin?", note:"Award marks for naming the pancreas as the source and glycogen as the storage product \u2014 \u201cit lowers blood sugar\u201d alone misses the mechanism marks."},
-    {pts:500, clue:"Explain, using a negative feedback mechanism, how the body responds when blood glucose concentration rises too high after a meal.", resp:"What is: the pancreas releases insulin, liver and muscle cells take up glucose and convert it to glycogen, and blood glucose returns to normal?", note:"Four marking points: (1) pancreas releases insulin, (2) glucose taken up by liver/muscle cells, (3) conversion to glycogen (glycogenesis), (4) blood glucose returns to normal \u2014 this is the negative feedback loop."}
+    [
+      {pts:100, clue:"This muscular organ pumps blood around the entire body.", resp:"What is the heart?"},
+      {pts:100, clue:"This type of blood cell contains no nucleus and carries oxygen around the body.", resp:"What are red blood cells?"},
+      {pts:100, clue:"This is the name of the process by which the body maintains a constant internal environment.", resp:"What is homeostasis?"}
+    ],
+    [
+      {pts:200, clue:"This type of blood vessel carries blood away from the heart, usually under high pressure.", resp:"What is an artery?"},
+      {pts:200, clue:"This type of blood vessel carries blood back to the heart and contains valves to prevent backflow.", resp:"What is a vein?"},
+      {pts:200, clue:"These are the smallest blood vessels, only one cell thick, where substances are exchanged with tissues.", resp:"What are capillaries?"}
+    ],
+    [
+      {pts:300, clue:"These tiny air sacs in the lungs are the site of gas exchange, where oxygen diffuses into the blood.", resp:"What are alveoli?"},
+      {pts:300, clue:"This is the name for the organ system responsible for exchanging gases between the blood and the air.", resp:"What is the respiratory system?"},
+      {pts:300, clue:"This muscle sits below the lungs and contracts to help draw air into them.", resp:"What is the diaphragm?"}
+    ],
+    [
+      {pts:400, clue:"This hormone, released by the pancreas, lowers blood glucose concentration by causing cells to take up glucose and the liver to store it as glycogen.", resp:"What is insulin?", note:"Award marks for naming the pancreas as the source and glycogen as the storage product \u2014 \u201cit lowers blood sugar\u201d alone misses the mechanism marks."},
+      {pts:400, clue:"This gland releases adrenaline in response to stress, preparing the body for \u2018fight or flight\u2019.", resp:"What are the adrenal glands?"},
+      {pts:400, clue:"This hormone, released by the pancreas, raises blood glucose by causing the liver to break down glycogen into glucose.", resp:"What is glucagon?"}
+    ],
+    [
+      {pts:500, clue:"Explain, using a negative feedback mechanism, how the body responds when blood glucose concentration rises too high after a meal.", resp:"What is negative feedback: insulin is released, cells take up glucose, and blood glucose falls?", note:"Four marking points: (1) pancreas releases insulin, (2) liver/muscle cells take up glucose, (3) conversion to glycogen, (4) blood glucose returns to normal."},
+      {pts:500, clue:"A patient's resting heart rate is 70 bpm. During exercise it rises to 154 bpm. Calculate the percentage increase in heart rate.", resp:"What is 120%?", note:"Method: increase \u00f7 original \u00d7 100 = (154 \u2212 70) \u00f7 70 \u00d7 100 = 120%."},
+      {pts:500, clue:"Explain why regular exercise can reduce the risk of type 2 diabetes, in terms of blood glucose control.", resp:"What is: exercise increases glucose uptake by muscle cells, reducing blood glucose and insulin demand?"}
+    ]
   ]},
   {cat:"Particles, Atoms & the Periodic Table", qs:[
-    {pts:100, clue:"This is the smallest part of an element that can exist and still be recognised as that element.", resp:"What is an atom?"},
-    {pts:200, clue:"This tiny, positively charged particle is found inside the nucleus of an atom.", resp:"What is a proton?"},
-    {pts:300, clue:"This table organises every known element according to its properties and electronic structure.", resp:"What is the periodic table?"},
-    {pts:400, clue:"Atoms of the same element that have the same number of protons but different numbers of neutrons are described by this term.", resp:"What are isotopes?", note:"Full marks need \u201csame protons, different neutrons\u201d stated explicitly \u2014 \u201cdifferent types of the same element\u201d alone is too vague for a GCSE mark scheme."},
-    {pts:500, clue:"Chlorine exists as two isotopes: 75% chlorine-35 and 25% chlorine-37. Using this data, calculate its relative atomic mass to one decimal place.", resp:"What is 35.5?", note:"Method mark for the weighted mean calculation: (75 \u00d7 35 + 25 \u00d7 37) \u00f7 100. Final mark for the correct answer given to 1 decimal place."}
+    [
+      {pts:100, clue:"This is the smallest part of an element that can exist and still be recognised as that element.", resp:"What is an atom?"},
+      {pts:100, clue:"This is the name for a substance made of two or more different elements chemically joined together.", resp:"What is a compound?"},
+      {pts:100, clue:"This term describes a pure substance made of only one type of atom.", resp:"What is an element?"}
+    ],
+    [
+      {pts:200, clue:"This tiny, positively charged particle is found inside the nucleus of an atom.", resp:"What is a proton?"},
+      {pts:200, clue:"This neutral particle, found in the nucleus, has roughly the same mass as a proton.", resp:"What is a neutron?"},
+      {pts:200, clue:"This negatively charged particle orbits the nucleus in shells.", resp:"What is an electron?"}
+    ],
+    [
+      {pts:300, clue:"This table organises every known element according to its properties and electronic structure.", resp:"What is the periodic table?"},
+      {pts:300, clue:"Elements in the same vertical column of the periodic table share this feature, giving them similar chemical properties.", resp:"What is the same number of electrons in their outer shell (same group)?"},
+      {pts:300, clue:"This is the term for the number of protons in an atom's nucleus, which defines the element.", resp:"What is the atomic number?"}
+    ],
+    [
+      {pts:400, clue:"Atoms of the same element that have the same number of protons but different numbers of neutrons are described by this term.", resp:"What are isotopes?", note:"Full marks need \u201csame protons, different neutrons\u201d stated explicitly \u2014 \u201cdifferent types of the same element\u201d alone is too vague for a GCSE mark scheme."},
+      {pts:400, clue:"This term describes the tightly packed centre of an atom, containing protons and neutrons.", resp:"What is the nucleus?"},
+      {pts:400, clue:"This model of the atom placed a small positive nucleus at the centre with electrons orbiting it, replacing the plum pudding model.", resp:"What is the nuclear model (Rutherford model)?"}
+    ],
+    [
+      {pts:500, clue:"Chlorine exists as two isotopes: 75% chlorine-35 and 25% chlorine-37. Using this data, calculate its relative atomic mass to one decimal place.", resp:"What is 35.5?", note:"Method mark for the weighted mean calculation: (75 \u00d7 35 + 25 \u00d7 37) \u00f7 100. Final mark for the correct answer given to 1 decimal place."},
+      {pts:500, clue:"An element has two isotopes: 60% with mass number 63 and 40% with mass number 65. Calculate its relative atomic mass to one decimal place.", resp:"What is 63.8?", note:"Method: (60 \u00d7 63 + 40 \u00d7 65) \u00f7 100 = 63.8."},
+      {pts:500, clue:"Explain, in terms of subatomic particles, why isotopes of the same element have identical chemical properties.", resp:"What is: they have the same number of protons and electrons, so the same electron arrangement?"}
+    ]
   ]},
   {cat:"Chemical Reactions & Quantitative Chemistry", qs:[
-    {pts:100, clue:"This type of reaction releases energy to the surroundings, usually shown by a rise in temperature.", resp:"What is an exothermic reaction?"},
-    {pts:200, clue:"This law states that no atoms are gained or lost during a chemical reaction, so the total mass of the reactants equals the total mass of the products.", resp:"What is the law of conservation of mass?"},
-    {pts:300, clue:"This type of reaction happens when an acid and an alkali react together, producing a salt and water.", resp:"What is neutralisation?"},
-    {pts:400, clue:"Grinding a solid reactant into a powder increases the rate of reaction because it increases this property, resulting in more frequent successful collisions between reacting particles.", resp:"What is surface area (to volume ratio)?", note:"Students must explicitly link increased surface area \u2192 more particles exposed/available to react \u2192 higher frequency of successful collisions. Simply stating \u201cit reacts faster\u201d misses the mechanism marks."},
-    {pts:500, clue:"Using moles = mass \u00f7 Mr, calculate the number of moles in 6 g of magnesium (Mr of Mg = 24).", resp:"What is 0.25 moles?", note:"Method mark for correct substitution (6 \u00f7 24); final mark requires the correct answer with the unit \u201cmol\u201d stated."}
+    [
+      {pts:100, clue:"This type of reaction releases energy to the surroundings, usually shown by a rise in temperature.", resp:"What is an exothermic reaction?"},
+      {pts:100, clue:"This type of reaction takes in energy from the surroundings, usually shown by a fall in temperature.", resp:"What is an endothermic reaction?"},
+      {pts:100, clue:"This is the general term for a substance that speeds up a reaction without being used up.", resp:"What is a catalyst?"}
+    ],
+    [
+      {pts:200, clue:"This law states that no atoms are gained or lost during a chemical reaction, so the total mass of the reactants equals the total mass of the products.", resp:"What is the law of conservation of mass?"},
+      {pts:200, clue:"This type of reaction occurs when a substance loses electrons, such as a metal reacting with oxygen.", resp:"What is oxidation?"},
+      {pts:200, clue:"This is the term for a reaction that can proceed in both the forward and reverse directions.", resp:"What is a reversible reaction?"}
+    ],
+    [
+      {pts:300, clue:"This type of reaction happens when an acid and an alkali react together, producing a salt and water.", resp:"What is neutralisation?"},
+      {pts:300, clue:"This is the pH value of a neutral solution, such as pure water.", resp:"What is 7?"},
+      {pts:300, clue:"This gas is produced when an acid reacts with a metal, alongside a salt.", resp:"What is hydrogen?"}
+    ],
+    [
+      {pts:400, clue:"Grinding a solid reactant into a powder increases the rate of reaction because it increases this property, resulting in more frequent successful collisions between reacting particles.", resp:"What is surface area (to volume ratio)?", note:"Students must explicitly link increased surface area \u2192 more particles exposed/available to react \u2192 higher frequency of successful collisions. Simply stating \u201cit reacts faster\u201d misses the mechanism marks."},
+      {pts:400, clue:"Increasing this factor increases the rate of reaction because particles have more kinetic energy and collide more frequently and successfully.", resp:"What is temperature?"},
+      {pts:400, clue:"This factor increases the rate of a reaction between gases by increasing the frequency of collisions between particles.", resp:"What is pressure?"}
+    ],
+    [
+      {pts:500, clue:"Using moles = mass \u00f7 Mr, calculate the number of moles in 6 g of magnesium (Mr of Mg = 24).", resp:"What is 0.25 moles?", note:"Method mark for correct substitution (6 \u00f7 24); final mark requires the correct answer with the unit \u201cmol\u201d stated."},
+      {pts:500, clue:"Using moles = mass \u00f7 Mr, calculate the mass of 0.5 moles of calcium carbonate (Mr of CaCO\u2083 = 100).", resp:"What is 50 g?", note:"Method: mass = moles \u00d7 Mr = 0.5 \u00d7 100 = 50 g."},
+      {pts:500, clue:"Calculate the percentage yield of a reaction that produced 15 g of product, if the theoretical maximum yield was 20 g.", resp:"What is 75%?", note:"Method: percentage yield = actual \u00f7 theoretical \u00d7 100 = 15 \u00f7 20 \u00d7 100 = 75%."}
+    ]
   ]},
   {cat:"Forces, Motion & Energy", qs:[
-    {pts:100, clue:"This is the name for a push or a pull acting on an object, measured in newtons.", resp:"What is a force?"},
-    {pts:200, clue:"This quantity is calculated by dividing the distance travelled by the time taken.", resp:"What is speed?"},
-    {pts:300, clue:"This is the energy store of an object due to its height above the ground.", resp:"What is gravitational potential energy?"},
-    {pts:400, clue:"This law states that the acceleration of an object is directly proportional to the resultant force acting on it, and inversely proportional to its mass.", resp:"What is Newton's second law?", note:"Full marks need both halves of the relationship \u2014 proportional to force and inversely proportional to mass \u2014 ideally supported by the equation F = ma. Stating only \u201cmore force, more acceleration\u201d is incomplete."},
-    {pts:500, clue:"Using F = ma, calculate the resultant force needed to accelerate a 0.5 kg trolley at 4 m/s\u00b2.", resp:"What is 2 newtons (N)?", note:"Method mark for correct substitution (0.5 \u00d7 4); final mark requires the correct value with the unit \u201cN.\u201d"}
+    [
+      {pts:100, clue:"This is the name for a push or a pull acting on an object, measured in newtons.", resp:"What is a force?"},
+      {pts:100, clue:"This is the force that opposes motion between two surfaces in contact.", resp:"What is friction?"},
+      {pts:100, clue:"This is the force of attraction between an object and the Earth, measured in newtons.", resp:"What is weight (gravity)?"}
+    ],
+    [
+      {pts:200, clue:"This quantity is calculated by dividing the distance travelled by the time taken.", resp:"What is speed?"},
+      {pts:200, clue:"This quantity describes the rate of change of velocity, measured in m/s\u00b2.", resp:"What is acceleration?"},
+      {pts:200, clue:"This quantity is speed in a given direction.", resp:"What is velocity?"}
+    ],
+    [
+      {pts:300, clue:"This is the energy store of an object due to its height above the ground.", resp:"What is gravitational potential energy?"},
+      {pts:300, clue:"This is the energy store of a moving object, calculated using \u00bdmv\u00b2.", resp:"What is kinetic energy?"},
+      {pts:300, clue:"This is the energy store of a stretched or compressed spring.", resp:"What is elastic potential energy?"}
+    ],
+    [
+      {pts:400, clue:"This law states that the acceleration of an object is directly proportional to the resultant force acting on it, and inversely proportional to its mass.", resp:"What is Newton's second law?", note:"Full marks need both halves of the relationship \u2014 proportional to force and inversely proportional to mass \u2014 ideally supported by the equation F = ma. Stating only \u201cmore force, more acceleration\u201d is incomplete."},
+      {pts:400, clue:"This law states that an object stays at rest or moving at a constant velocity unless acted on by a resultant force.", resp:"What is Newton's first law?"},
+      {pts:400, clue:"This law states that for every action force, there is an equal and opposite reaction force.", resp:"What is Newton's third law?"}
+    ],
+    [
+      {pts:500, clue:"Using F = ma, calculate the resultant force needed to accelerate a 0.5 kg trolley at 4 m/s\u00b2.", resp:"What is 2 newtons (N)?", note:"Method mark for correct substitution (0.5 \u00d7 4); final mark requires the correct value with the unit \u201cN.\u201d"},
+      {pts:500, clue:"Using GPE = mgh, calculate the gravitational potential energy of a 2 kg object raised 5 m (g = 10 N/kg).", resp:"What is 100 joules (J)?", note:"Method: GPE = mgh = 2 \u00d7 10 \u00d7 5 = 100 J."},
+      {pts:500, clue:"Using KE = \u00bdmv\u00b2, calculate the kinetic energy of a 4 kg object moving at 3 m/s.", resp:"What is 18 joules (J)?", note:"Method: KE = 0.5 \u00d7 4 \u00d7 3\u00b2 = 0.5 \u00d7 4 \u00d7 9 = 18 J."}
+    ]
   ]},
   {cat:"Waves, Electricity & Space", qs:[
-    {pts:100, clue:"This is the maximum displacement of a wave from its undisturbed, rest position.", resp:"What is amplitude?"},
-    {pts:200, clue:"This type of circuit provides only one single path for the current to flow around, so if one component fails, the whole circuit stops working.", resp:"What is a series circuit?"},
-    {pts:300, clue:"This is the term for light bouncing back off a surface, such as in a mirror.", resp:"What is reflection?"},
-    {pts:400, clue:"In this nuclear process, two light nuclei, such as hydrogen isotopes, join together to form a heavier nucleus, releasing enormous amounts of energy \u2014 it's what powers the Sun.", resp:"What is nuclear fusion?", note:"Students must distinguish this from fission \u2014 fusion joins light nuclei, fission splits a heavy nucleus. Both release energy, so naming the correct process is the key discriminator."},
-    {pts:500, clue:"A radioactive sample has an initial activity of 800 Bq and a half-life of 5 days. Calculate its activity after 15 days.", resp:"What is 100 Bq?", note:"Method mark for identifying that 15 \u00f7 5 = 3 half-lives have elapsed; then halving three times: 800 \u2192 400 \u2192 200 \u2192 100. Award the mark even if shown as repeated halving rather than a formula."}
+    [
+      {pts:100, clue:"This is the maximum displacement of a wave from its undisturbed, rest position.", resp:"What is amplitude?"},
+      {pts:100, clue:"This is the distance between two identical points on adjacent waves, such as crest to crest.", resp:"What is wavelength?"},
+      {pts:100, clue:"This is the number of waves passing a point per second, measured in hertz.", resp:"What is frequency?"}
+    ],
+    [
+      {pts:200, clue:"This type of circuit provides only one single path for the current to flow around, so if one component fails, the whole circuit stops working.", resp:"What is a series circuit?"},
+      {pts:200, clue:"This type of circuit provides more than one path for current, so components work independently of each other.", resp:"What is a parallel circuit?"},
+      {pts:200, clue:"This component's resistance decreases as light intensity increases.", resp:"What is a light-dependent resistor (LDR)?"}
+    ],
+    [
+      {pts:300, clue:"This is the term for light bouncing back off a surface, such as in a mirror.", resp:"What is reflection?"},
+      {pts:300, clue:"This is the term for light changing direction as it passes from one medium into another of different density.", resp:"What is refraction?"},
+      {pts:300, clue:"This is the unit used to measure electrical resistance.", resp:"What is the ohm (\u03a9)?"}
+    ],
+    [
+      {pts:400, clue:"In this nuclear process, two light nuclei, such as hydrogen isotopes, join together to form a heavier nucleus, releasing enormous amounts of energy \u2014 it's what powers the Sun.", resp:"What is nuclear fusion?", note:"Students must distinguish this from fission \u2014 fusion joins light nuclei, fission splits a heavy nucleus. Both release energy, so naming the correct process is the key discriminator."},
+      {pts:400, clue:"In this nuclear process, a large, unstable nucleus splits into two smaller nuclei, releasing energy \u2014 it's how nuclear power stations generate electricity.", resp:"What is nuclear fission?"},
+      {pts:400, clue:"This stage of a star's life cycle occurs after a massive star exhausts its fuel and explodes violently.", resp:"What is a supernova?"}
+    ],
+    [
+      {pts:500, clue:"A radioactive sample has an initial activity of 800 Bq and a half-life of 5 days. Calculate its activity after 15 days.", resp:"What is 100 Bq?", note:"Method mark for identifying that 15 \u00f7 5 = 3 half-lives have elapsed; then halving three times: 800 \u2192 400 \u2192 200 \u2192 100. Award the mark even if shown as repeated halving rather than a formula."},
+      {pts:500, clue:"Using V = IR, calculate the potential difference across a resistor with a resistance of 12 \u03a9 and a current of 0.5 A flowing through it.", resp:"What is 6 volts (V)?", note:"Method: V = I \u00d7 R = 0.5 \u00d7 12 = 6 V."},
+      {pts:500, clue:"A radioactive isotope has a half-life of 8 years. Calculate how many years it takes for its activity to fall to 1/8 of its original value.", resp:"What is 24 years?", note:"Method: 1/8 = (1/2)\u00b3, so 3 half-lives have passed: 3 \u00d7 8 = 24 years."}
+    ]
   ]}
 ];
 const TEAM_KEYS=["A","B","C","D"];
@@ -303,6 +423,11 @@ let teamCount=3;
 let teams=[]; // {name, key, score}
 let answered=[]; // 2D [catIdx][qIdx] boolean
 let current=null; // {c,r}
+let board=[]; // 2D [catIdx][qIdx] -> randomly chosen question variant
+
+function pickBoard(){
+  board=DATA.map(cat=>cat.qs.map(variants=>variants[Math.floor(Math.random()*variants.length)]));
+}
 
 /* ---- setup screen ---- */
 const teamCountRow=document.getElementById('teamCountRow');
@@ -337,6 +462,7 @@ document.getElementById('startBtn').addEventListener('click',()=>{
     const val=document.getElementById('teamName'+key).value.trim();
     teams.push({name: val || TEAM_DEFAULT_NAMES[i], key, score:0});
   }
+  pickBoard();
   answered=DATA.map(cat=>cat.qs.map(()=>false));
   document.getElementById('setup').style.display='none';
   document.getElementById('game').classList.add('on');
@@ -376,7 +502,7 @@ function renderBoard(){
   });
   for(let r=0;r<5;r++){
     DATA.forEach((cat,c)=>{
-      const q=cat.qs[r];
+      const q=board[c][r];
       const tile=document.createElement('div');
       tile.className='cell tile';
       tile.tabIndex=0;
@@ -410,7 +536,7 @@ const skipBtn=document.getElementById('skipBtn');
 
 function openClue(c,r){
   current={c,r};
-  const cat=DATA[c], q=cat.qs[r];
+  const cat=DATA[c], q=board[c][r];
   mPoints.textContent=q.pts;
   mCat.textContent=cat.cat;
   mClue.textContent=q.clue;
@@ -463,6 +589,7 @@ backdrop.addEventListener('click',e=>{ if(e.target===backdrop){ backdrop.classLi
 /* ---- controls ---- */
 document.getElementById('resetBtn').addEventListener('click',()=>{
   if(!confirm('Reset the board and scores?'))return;
+  pickBoard();
   answered=DATA.map(cat=>cat.qs.map(()=>false));
   teams.forEach(t=>t.score=0);
   updateScorebar();
