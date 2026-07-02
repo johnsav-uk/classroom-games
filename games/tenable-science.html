@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tenable Neon — Science Edition</title>
+<style>
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Arial Black', 'Helvetica', sans-serif;
+  background: #0a0a1a;
+  color: #eee;
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(138,43,226,0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 50%, rgba(0,255,136,0.1) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ============================================================
+   SCREEN SYSTEM
+   ============================================================ */
+.screen { display: none; padding: 2rem 1rem; }
+.screen.active { display: block; }
+
+/* ============================================================
+   SETUP SCREEN
+   ============================================================ */
+#setup-screen { max-width: 660px; margin: 0 auto; }
+
+.setup-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  padding-top: 1rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 3px solid #00ff88;
+  box-shadow: 0 0 20px rgba(0,255,136,0.5);
+}
+
+.setup-header h1 {
+  font-size: 48px;
+  font-weight: 900;
+  letter-spacing: 8px;
+  color: #00ff88;
+  text-shadow: 0 0 20px #00ff88, 0 0 40px #00ff8866;
+  margin-bottom: 0.3rem;
+}
+
+.setup-header .subtitle {
+  color: #aa00ff;
+  font-size: 12px;
+  text-shadow: 0 0 10px #aa00ff66;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* --- Mode tabs --- */
+.mode-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 1.5rem;
+  border: 2px solid #aa00ff;
+  overflow: hidden;
+}
+
+.mode-tab {
+  flex: 1;
+  padding: 10px;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-align: center;
+  cursor: pointer;
+  background: #1a1a2e;
+  color: #aa00ff;
+  border: none;
+  transition: all 0.2s;
+  border-right: 2px solid #aa00ff;
+}
+.mode-tab:last-child { border-right: none; }
+.mode-tab.active {
+  background: #aa00ff;
+  color: #fff;
+  text-shadow: 0 0 8px rgba(255,255,255,0.5);
+}
+.mode-tab:hover:not(.active) {
+  background: rgba(170,0,255,0.15);
+  color: #fff;
+}
+
+/* --- Mode panels --- */
+.mode-panel { display: none; }
+.mode-panel.active { display: block; }
+
+/* --- Question Bank (JSON mode) --- */
+.bank-section-label {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: #aa00ff;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.bank-loading {
+  text-align: center;
+  padding: 20px;
+  color: #aa00ff66;
+  font-size: 13px;
+}
+
+.bank-error {
+  text-align: center;
+  padding: 16px;
+  color: #ff0055;
+  font-size: 13px;
+  border: 2px solid #ff0055;
+  background: rgba(255,0,85,0.08);
+  margin-bottom: 1rem;
+}
+
+.bank-filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border: 2px solid #aa00ff;
+  background: #1a1a2e;
+  color: #aa00ff;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.filter-btn.active, .filter-btn:hover {
+  background: #aa00ff;
+  color: #fff;
+}
+
+.question-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 1.2rem;
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.question-cards::-webkit-scrollbar { width: 4px; }
+.question-cards::-webkit-scrollbar-track { background: #1a1a2e; }
+.question-cards::-webkit-scrollbar-thumb { background: #aa00ff; }
+
+.q-card {
+  padding: 12px;
+  border: 2px solid #aa00ff44;
+  background: #1a1a2e;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+.q-card:hover, .q-card.selected {
+  border-color: #00ff88;
+  box-shadow: 0 0 15px rgba(0,255,136,0.3);
+}
+.q-card.selected::after {
+  content: '✓';
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  color: #00ff88;
+  font-size: 12px;
+  font-weight: 900;
+}
+.q-card-topic {
+  font-size: 10px;
+  color: #aa00ff;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.q-card-question {
+  font-size: 12px;
+  color: #eee;
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 6px;
+}
+.q-card-diff {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  padding: 2px 6px;
+  text-transform: uppercase;
+}
+.diff-Easy { background: #00ff8822; color: #00ff88; border: 1px solid #00ff88; }
+.diff-Medium { background: #aa00ff22; color: #aa00ff; border: 1px solid #aa00ff; }
+.diff-Hard { background: #ff005522; color: #ff0055; border: 1px solid #ff0055; }
+
+/* Level badges (KS3 / GCSE) reuse the q-card-diff base box */
+.lvl-KS3  { background: #00d4ff22; color: #00d4ff; border: 1px solid #00d4ff; }
+.lvl-GCSE { background: #ffaa0022; color: #ffaa00; border: 1px solid #ffaa00; }
+.lvl-Both { background: #ffffff14; color: #ddd;    border: 1px solid #888;    }
+
+.q-card-badges { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+
+.random-btn {
+  width: 100%;
+  padding: 10px;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border: 2px solid #00ff88;
+  background: transparent;
+  color: #00ff88;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  transition: all 0.2s;
+}
+.random-btn:hover {
+  background: rgba(0,255,136,0.1);
+  box-shadow: 0 0 15px rgba(0,255,136,0.3);
+}
+
+/* --- Custom Game mode --- */
+.q-input {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 15px;
+  border: 2px solid #00ff88;
+  background: #1a1a2e;
+  color: #00ff88;
+  margin-bottom: 1rem;
+  resize: vertical;
+  box-shadow: 0 0 15px rgba(0,255,136,0.3), inset 0 0 10px rgba(0,255,136,0.1);
+  font-weight: 600;
+  font-family: inherit;
+}
+.q-input::placeholder { color: #00664466; }
+.q-input:focus {
+  outline: none;
+  border-color: #aa00ff;
+  box-shadow: 0 0 25px rgba(170,0,255,0.5), inset 0 0 10px rgba(170,0,255,0.1);
+  color: #aa00ff;
+}
+
+.answers-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: repeat(5, auto);
+  grid-auto-flow: column;
+  gap: 10px;
+  margin-bottom: 1.5rem;
+}
+
+.ans-row { display: flex; align-items: center; gap: 10px; }
+
+.ans-num {
+  font-size: 14px;
+  font-weight: 900;
+  color: #aa00ff;
+  width: 32px;
+  text-align: center;
+  flex-shrink: 0;
+  text-shadow: 0 0 8px #aa00ff66;
+}
+
+.ans-input {
+  flex: 1;
+  padding: 10px 12px;
+  font-size: 14px;
+  border: 2px solid #aa00ff;
+  background: #1a1a2e;
+  color: #aa00ff;
+  font-weight: 600;
+  box-shadow: 0 0 10px rgba(170,0,255,0.2);
+  font-family: inherit;
+}
+.ans-input::placeholder { color: #aa006644; }
+.ans-input:focus {
+  outline: none;
+  border-color: #00ff88;
+  box-shadow: 0 0 20px rgba(0,255,136,0.4);
+  color: #00ff88;
+}
+
+/* --- Start button --- */
+.start-btn {
+  width: 100%;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: 900;
+  border: 3px solid #00ff88;
+  background: #00ff88;
+  color: #0a0a1a;
+  cursor: pointer;
+  letter-spacing: 2px;
+  box-shadow: 0 0 20px #00ff88, 0 0 40px #00ff8866;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  font-family: inherit;
+}
+.start-btn:hover {
+  background: #aa00ff;
+  border-color: #aa00ff;
+  box-shadow: 0 0 25px #aa00ff, 0 0 50px #aa00ff66;
+  color: #fff;
+}
+.start-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: #333;
+  border-color: #555;
+  color: #666;
+  box-shadow: none;
+}
+
+/* ============================================================
+   GAME SCREEN
+   ============================================================ */
+#game-screen { max-width: 720px; margin: 0 auto; }
+
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #aa00ff;
+  box-shadow: 0 0 15px rgba(170,0,255,0.3);
+}
+
+.game-title {
+  font-size: 36px;
+  font-weight: 900;
+  color: #aa00ff;
+  letter-spacing: 3px;
+  text-shadow: 0 0 15px #aa00ff, 0 0 30px #aa00ff66;
+}
+
+.lives { display: flex; gap: 12px; font-size: 28px; }
+.life { transition: all 0.2s; filter: drop-shadow(0 0 8px currentColor); }
+
+.question-box {
+  background: #1a1a2e;
+  border: 3px solid #aa00ff;
+  padding: 16px;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  color: #00ff88;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.5;
+  box-shadow: 0 0 20px rgba(170,0,255,0.4), inset 0 0 10px rgba(170,0,255,0.1);
+}
+
+.question-meta {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 8px;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.speed-control {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 1.5rem;
+  background: #1a1a2e;
+  padding: 12px 16px;
+  border: 2px solid #00ff88;
+  box-shadow: 0 0 15px rgba(0,255,136,0.2);
+}
+
+.speed-label { font-size: 13px; color: #00ff88; white-space: nowrap; font-weight: 700; text-transform: uppercase; }
+
+.speed-slider {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: #aa00ff;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  box-shadow: 0 0 10px rgba(170,0,255,0.4);
+}
+.speed-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: #00ff88;
+  cursor: pointer;
+  box-shadow: 0 0 12px #00ff88;
+}
+.speed-slider::-moz-range-thumb {
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: #00ff88;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 0 12px #00ff88;
+}
+
+.speed-val { font-size: 12px; color: #aa00ff; min-width: 60px; text-align: right; font-weight: 700; }
+
+/* --- Pyramid --- */
+.pyramid-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 1.5rem;
+  padding: 10px;
+  background: linear-gradient(135deg, rgba(170,0,255,0.1) 0%, rgba(0,255,136,0.1) 100%);
+  border: 3px solid #aa00ff;
+  box-shadow: 0 0 30px rgba(170,0,255,0.3), inset 0 0 20px rgba(170,0,255,0.05);
+  position: relative;
+  overflow: hidden;
+}
+.pyramid-wrap::before {
+  content: '';
+  position: absolute;
+  top: 5px; left: 5px; right: 5px; bottom: 5px;
+  border: 2px solid #00ff88;
+  pointer-events: none;
+  box-shadow: inset 0 0 20px rgba(0,255,136,0.1);
+  z-index: 0;
+}
+
+.prow { display: flex; justify-content: center; position: relative; z-index: 1; }
+
+.cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  text-align: center;
+  border: 2px solid #aa00ff;
+  position: relative;
+  overflow: hidden;
+  height: 42px;
+  padding: 0 8px;
+  font-size: 13px;
+  letter-spacing: 1px;
+  transition: all 0.15s ease;
+}
+.cell::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(0,255,136,0.2) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+.cell-inner {
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 100%;
+  position: relative;
+  z-index: 1;
+  font-weight: 900;
+  font-size: 14px;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  text-align: center;
+  width: 100%;
+}
+
+.cell.st-empty  { background: #0a0a2e; color: #eee;    border-color: #aa00ff44; }
+.cell.st-found  { background: #00ff88; color: #fff;    border-color: #00ff88;   box-shadow: 0 0 20px #00ff88, 0 0 40px #00ff8866; }
+.cell.st-ac     { background: #aa00ff; color: #00ff88; border-color: #00ff88;   box-shadow: 0 0 25px #aa00ff, 0 0 15px #00ff88; }
+.cell.st-rw     { background: #ff0055; color: #fff;    border-color: #ff0055;   box-shadow: 0 0 30px #ff0055, 0 0 50px #ff005566; animation: pulse-red 0.3s ease; }
+
+@keyframes pulse-red { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+
+/* --- Guess area --- */
+.guess-area { display: flex; gap: 10px; margin-bottom: 1rem; }
+
+.guess-input {
+  flex: 1;
+  padding: 12px 16px;
+  font-size: 15px;
+  border: 2px solid #00ff88;
+  background: #1a1a2e;
+  color: #00ff88;
+  font-weight: 700;
+  box-shadow: 0 0 15px rgba(0,255,136,0.3);
+  font-family: inherit;
+}
+.guess-input::placeholder { color: #00664466; }
+.guess-input:focus {
+  outline: none;
+  border-color: #aa00ff;
+  box-shadow: 0 0 25px rgba(170,0,255,0.5);
+  color: #aa00ff;
+}
+
+.guess-btn {
+  padding: 12px 24px;
+  font-size: 15px;
+  font-weight: 900;
+  border: 2px solid #aa00ff;
+  background: #aa00ff;
+  color: #fff;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  letter-spacing: 1px;
+  box-shadow: 0 0 15px #aa00ff;
+  transition: all 0.3s;
+  text-transform: uppercase;
+  font-family: inherit;
+}
+.guess-btn:hover { background: #00ff88; border-color: #00ff88; color: #0a0a1a; box-shadow: 0 0 25px #00ff88; }
+
+.status-msg {
+  text-align: center;
+  min-height: 24px;
+  font-size: 14px;
+  color: #00ff88;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+  text-shadow: 0 0 10px rgba(0,255,136,0.3);
+}
+
+.bottom-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: #aa00ff;
+  padding-top: 0.5rem;
+  border-top: 2px solid #aa00ff;
+  font-weight: 700;
+}
+.bottom-bar .pass-btn {
+  cursor: pointer;
+  color: #00ff88;
+  text-shadow: 0 0 8px #00ff8866;
+  transition: all 0.3s;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+.bottom-bar .pass-btn:hover { text-shadow: 0 0 15px #00ff88; }
+
+#game-screen.flash-red { animation: redflash-neon 0.6s ease-out; }
+@keyframes redflash-neon {
+  0%   { background: rgba(255,0,85,0.3); }
+  40%  { background: rgba(255,0,85,0.15); }
+  100% { background: transparent; }
+}
+
+/* ============================================================
+   END SCREEN
+   ============================================================ */
+#end-screen { max-width: 640px; margin: 0 auto; text-align: center; padding-top: 2rem; }
+
+.end-title { font-size: 42px; font-weight: 900; margin-bottom: 0.5rem; letter-spacing: 2px; }
+.end-score { font-size: 16px; color: #aa00ff; margin-bottom: 1.5rem; font-weight: 700; }
+
+.end-answers {
+  text-align: left;
+  margin-bottom: 1.5rem;
+  border: 2px solid #aa00ff;
+  overflow: hidden;
+  background: #1a1a2e;
+  box-shadow: 0 0 20px rgba(170,0,255,0.3);
+}
+
+.end-answer-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #aa006644;
+  font-size: 14px;
+  font-weight: 700;
+}
+.end-answer-row:last-child { border-bottom: none; }
+.end-pos { font-weight: 900; width: 32px; color: #aa00ff; flex-shrink: 0; }
+.end-found { color: #00ff88; text-shadow: 0 0 8px rgba(0,255,136,0.4); }
+.end-missed { color: #555; }
+
+.end-buttons { display: flex; gap: 10px; justify-content: center; }
+
+.play-again-btn {
+  padding: 12px 32px;
+  font-size: 16px;
+  font-weight: 900;
+  border: 3px solid #00ff88;
+  background: #00ff88;
+  color: #0a0a1a;
+  cursor: pointer;
+  letter-spacing: 2px;
+  box-shadow: 0 0 20px #00ff88;
+  transition: all 0.3s;
+  text-transform: uppercase;
+  font-family: inherit;
+}
+.play-again-btn:hover { background: #aa00ff; border-color: #aa00ff; box-shadow: 0 0 25px #aa00ff; color: #fff; }
+
+.new-q-btn {
+  padding: 12px 32px;
+  font-size: 16px;
+  font-weight: 900;
+  border: 3px solid #aa00ff;
+  background: transparent;
+  color: #aa00ff;
+  cursor: pointer;
+  letter-spacing: 2px;
+  box-shadow: 0 0 10px rgba(170,0,255,0.3);
+  transition: all 0.3s;
+  text-transform: uppercase;
+  font-family: inherit;
+}
+.new-q-btn:hover { background: #aa00ff; color: #fff; box-shadow: 0 0 25px #aa00ff; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ======================================================
+       SETUP SCREEN
+       ====================================================== -->
+  <div id="setup-screen" class="screen active">
+    <div class="setup-header">
+      <h1>TENABLE</h1>
+      <p class="subtitle">Science Edition — KS3 &amp; GCSE</p>
+    </div>
+
+    <!-- Mode tabs -->
+    <div class="mode-tabs" role="tablist">
+      <button class="mode-tab active" id="tab-bank"   role="tab" onclick="switchMode('bank')">📚 Question Bank</button>
+      <button class="mode-tab"        id="tab-custom" role="tab" onclick="switchMode('custom')">✏️ Custom Game</button>
+    </div>
+
+    <!-- ---- BANK MODE ---- -->
+    <div id="panel-bank" class="mode-panel active">
+      <div id="bank-loading" class="bank-loading">Loading questions…</div>
+      <div id="bank-error"   class="bank-error"   style="display:none"></div>
+
+      <div id="bank-ui" style="display:none">
+        <div class="bank-section-label">Subject</div>
+        <div class="bank-filters" id="filter-subject">
+          <button class="filter-btn active" onclick="setFilter('subject','All')">All</button>
+          <button class="filter-btn"        onclick="setFilter('subject','Biology')">Biology</button>
+          <button class="filter-btn"        onclick="setFilter('subject','Chemistry')">Chemistry</button>
+          <button class="filter-btn"        onclick="setFilter('subject','Physics')">Physics</button>
+        </div>
+
+        <div class="bank-section-label">Level</div>
+        <div class="bank-filters" id="filter-level">
+          <button class="filter-btn active" onclick="setFilter('level','All')">All</button>
+          <button class="filter-btn"        onclick="setFilter('level','KS3')">KS3</button>
+          <button class="filter-btn"        onclick="setFilter('level','GCSE')">GCSE</button>
+        </div>
+
+        <div class="bank-section-label">Difficulty</div>
+        <div class="bank-filters" id="filter-difficulty">
+          <button class="filter-btn active" onclick="setFilter('difficulty','All')">All</button>
+          <button class="filter-btn"        onclick="setFilter('difficulty','Easy')">Easy</button>
+          <button class="filter-btn"        onclick="setFilter('difficulty','Medium')">Medium</button>
+          <button class="filter-btn"        onclick="setFilter('difficulty','Hard')">Hard</button>
+        </div>
+
+        <div class="bank-section-label" id="bank-count-label">Select a question</div>
+        <div class="question-cards" id="question-cards"></div>
+
+        <button class="random-btn" onclick="selectRandom()">🎲 Pick a Random Question</button>
+      </div>
+    </div>
+
+    <!-- ---- CUSTOM MODE ---- -->
+    <div id="panel-custom" class="mode-panel">
+      <textarea class="q-input" id="question-input" rows="2"
+        placeholder="Enter your question (e.g. Name the 10 planets…)"></textarea>
+      <div class="answers-grid" id="answers-grid"></div>
+    </div>
+
+    <button class="start-btn" id="start-btn" onclick="startGame()" disabled>▶ START GAME</button>
+  </div>
+
+  <!-- ======================================================
+       GAME SCREEN
+       ====================================================== -->
+  <div id="game-screen" class="screen">
+    <div class="game-header">
+      <div class="game-title">TENABLE</div>
+      <div class="lives" id="lives-display"></div>
+    </div>
+
+    <div class="question-box" id="game-question">
+      <span id="game-question-text"></span>
+      <div class="question-meta" id="game-question-meta"></div>
+    </div>
+
+    <div class="speed-control">
+      <span class="speed-label">Climb speed</span>
+      <input type="range" class="speed-slider" id="speed-slider"
+             min="40" max="300" value="90" step="10" oninput="updateSpeedLabel()">
+      <span class="speed-val" id="speed-val">Normal</span>
+    </div>
+
+    <div class="pyramid-wrap" id="pyramid"></div>
+
+    <div class="guess-area">
+      <input class="guess-input" id="guess-input"
+             placeholder="Type your answer…" autocomplete="off" spellcheck="false" />
+      <button class="guess-btn" onclick="submitGuess()">GUESS</button>
+    </div>
+
+    <div class="status-msg" id="status-msg"></div>
+
+    <div class="bottom-bar">
+      <span id="found-count">Found: 0 / 10</span>
+      <button class="pass-btn" onclick="passGame()">PASS</button>
+    </div>
+  </div>
+
+  <!-- ======================================================
+       END SCREEN
+       ====================================================== -->
+  <div id="end-screen" class="screen">
+    <div class="end-title" id="end-title"></div>
+    <div class="end-score" id="end-score"></div>
+    <div class="end-answers" id="end-answers"></div>
+    <div class="end-buttons">
+      <button class="play-again-btn" onclick="replayGame()">↩ PLAY AGAIN</button>
+      <button class="new-q-btn"      onclick="returnToSetup()">NEW QUESTION</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ================================================================
+   TENABLE NEON — Science Edition
+   ================================================================
+   Architecture overview:
+   ┌──────────────────────────────────────────────────────────────┐
+   │  QuestionBank  – embedded data + subject/level/difficulty filter│
+   │  GameState     – single source of truth for the active game │
+   │  UI Renderers  – pure functions: state → DOM                │
+   │  Event Handlers – user actions → mutate state → re-render   │
+   └──────────────────────────────────────────────────────────────┘
+   ================================================================ */
+
+/* ----------------------------------------------------------------
+   AUDIO ENGINE
+   ---------------------------------------------------------------- */
+const AC = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
+const getCtx = () => { if (!audioCtx) audioCtx = new AC(); return audioCtx; };
+
+function playTone(freq, type, dur, vol, delay = 0) {
+  const ac = getCtx();
+  const osc = ac.createOscillator(), g = ac.createGain();
+  osc.connect(g); g.connect(ac.destination);
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, ac.currentTime + delay);
+  g.gain.setValueAtTime(vol, ac.currentTime + delay);
+  g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + delay + dur);
+  osc.start(ac.currentTime + delay);
+  osc.stop(ac.currentTime + delay + dur);
+}
+const playNote     = i => { const notes=[196,220,247,262,294,330,370,392,440,494]; playTone(notes[Math.min(i,9)],'sine',0.22,0.4); };
+const playPing     = ()  => [523,659,784,1047].forEach((f,i) => playTone(f,'sine',0.4,0.35,i*0.08));
+function playRaspberry() {
+  const ac=getCtx(), osc=ac.createOscillator(), g=ac.createGain(), lfo=ac.createOscillator(), lg=ac.createGain();
+  lfo.connect(lg); lg.connect(osc.frequency); osc.connect(g); g.connect(ac.destination);
+  osc.type='sawtooth'; osc.frequency.setValueAtTime(120,ac.currentTime);
+  lfo.frequency.setValueAtTime(22,ac.currentTime); lg.gain.setValueAtTime(70,ac.currentTime);
+  g.gain.setValueAtTime(0.5,ac.currentTime); g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.7);
+  lfo.start(); osc.start(); lfo.stop(ac.currentTime+0.7); osc.stop(ac.currentTime+0.7);
+}
+
+/* ================================================================
+   QUESTION BANK DATA  (AQA KS3 & GCSE — curated)
+   ----------------------------------------------------------------
+   Each entry:
+     subject    : 'Biology' | 'Chemistry' | 'Physics'
+     topic      : short display name for the topic
+     level      : 'KS3' | 'GCSE' | 'Both'   (clearly labelled)
+     question   : the 'Name 10…' prompt
+     answers    : EXACTLY 10 single-item answers
+     difficulty : 'Easy' | 'Medium' | 'Hard'
+     ordered    : true only where order genuinely matters (these
+                  questions ask for a sequence, e.g. reactivity series).
+                  The engine accepts answers in ANY order regardless;
+                  `ordered` just controls how the prompt is phrased.
+
+   Note on matching: the game accepts one canonical spelling per slot
+   (case- and punctuation-insensitive). Where a term has common
+   synonyms, the most standard school term is used.
+   ================================================================ */
+const QUESTION_DATA = [
+  /* ---------------- BIOLOGY ---------------- */
+  {
+    subject: 'Biology', topic: 'Organs of the Body', level: 'KS3', difficulty: 'Easy',
+    question: 'Name 10 organs in the human body.',
+    answers: ['Heart','Lungs','Liver','Kidneys','Brain','Stomach','Pancreas','Small intestine','Bladder','Skin']
+  },
+  {
+    subject: 'Biology', topic: 'Organ Systems', level: 'KS3', difficulty: 'Medium',
+    question: 'Name 10 organ systems in the human body.',
+    answers: ['Circulatory system','Respiratory system','Digestive system','Nervous system','Muscular system','Skeletal system','Endocrine system','Reproductive system','Urinary system','Immune system']
+  },
+  {
+    subject: 'Biology', topic: 'The Skeleton', level: 'KS3', difficulty: 'Medium',
+    question: 'Name 10 bones in the human body.',
+    answers: ['Skull','Ribs','Spine','Sternum','Pelvis','Femur','Tibia','Humerus','Radius','Ulna']
+  },
+  {
+    subject: 'Biology', topic: 'The Microscope', level: 'KS3', difficulty: 'Medium',
+    question: 'Name 10 parts of a light microscope.',
+    answers: ['Eyepiece lens','Objective lens','Nosepiece','Stage','Stage clips','Coarse focus','Fine focus','Light source','Arm','Base']
+  },
+  {
+    subject: 'Biology', topic: 'Parts of a Flower', level: 'Both', difficulty: 'Easy',
+    question: 'Name 10 parts of an insect-pollinated flower.',
+    answers: ['Petal','Sepal','Stamen','Anther','Filament','Carpel','Stigma','Style','Ovary','Ovule']
+  },
+  {
+    subject: 'Biology', topic: 'The Digestive System', level: 'GCSE', difficulty: 'Medium',
+    question: 'Name 10 parts of the human digestive system.',
+    answers: ['Mouth','Salivary glands','Oesophagus','Stomach','Liver','Gall bladder','Pancreas','Small intestine','Large intestine','Rectum']
+  },
+  {
+    subject: 'Biology', topic: 'Sub-cellular Structures', level: 'GCSE', difficulty: 'Medium',
+    question: 'Name 10 sub-cellular structures studied in cell biology.',
+    answers: ['Nucleus','Cytoplasm','Cell membrane','Mitochondria','Ribosomes','Cell wall','Chloroplast','Permanent vacuole','Plasmid','Flagellum']
+  },
+  {
+    subject: 'Biology', topic: 'Hormones', level: 'GCSE', difficulty: 'Hard',
+    question: 'Name 10 hormones found in the human body.',
+    answers: ['Insulin','Glucagon','Adrenaline','Thyroxine','Testosterone','Oestrogen','Progesterone','FSH','LH','ADH']
+  },
+  {
+    subject: 'Biology', topic: 'Contraception', level: 'GCSE', difficulty: 'Hard',
+    question: 'Name 10 methods of contraception.',
+    answers: ['Condom','Diaphragm','Contraceptive pill','Implant','Injection','Patch','IUD','Spermicide','Sterilisation','Abstinence']
+  },
+
+  /* ---------------- CHEMISTRY ---------------- */
+  {
+    subject: 'Chemistry', topic: 'Laboratory Apparatus', level: 'KS3', difficulty: 'Easy',
+    question: 'Name 10 pieces of laboratory apparatus.',
+    answers: ['Beaker','Conical flask','Measuring cylinder','Test tube','Bunsen burner','Tripod','Gauze','Evaporating basin','Thermometer','Spatula']
+  },
+  {
+    subject: 'Chemistry', topic: 'Separating Mixtures', level: 'Both', difficulty: 'Medium',
+    question: 'Name 10 techniques used to separate mixtures.',
+    answers: ['Filtration','Evaporation','Crystallisation','Simple distillation','Fractional distillation','Chromatography','Decanting','Sieving','Using a magnet','Centrifuging']
+  },
+  {
+    subject: 'Chemistry', topic: 'First 10 Elements', level: 'Both', difficulty: 'Medium', ordered: true,
+    question: 'Name the first 10 elements of the periodic table (in order of atomic number).',
+    answers: ['Hydrogen','Helium','Lithium','Beryllium','Boron','Carbon','Nitrogen','Oxygen','Fluorine','Neon']
+  },
+  {
+    subject: 'Chemistry', topic: 'Reactivity Series', level: 'GCSE', difficulty: 'Hard', ordered: true,
+    question: 'Name the 10 metals of the reactivity series (most reactive first).',
+    answers: ['Potassium','Sodium','Lithium','Calcium','Magnesium','Aluminium','Zinc','Iron','Copper','Gold']
+  },
+  {
+    subject: 'Chemistry', topic: 'First 10 Alkanes', level: 'GCSE', difficulty: 'Hard', ordered: true,
+    question: 'Name the first 10 alkanes (in order, smallest first).',
+    answers: ['Methane','Ethane','Propane','Butane','Pentane','Hexane','Heptane','Octane','Nonane','Decane']
+  },
+
+  /* ---------------- PHYSICS ---------------- */
+  {
+    subject: 'Physics', topic: 'Types of Force', level: 'KS3', difficulty: 'Easy',
+    question: 'Name 10 types of force.',
+    answers: ['Gravity','Friction','Air resistance','Water resistance','Upthrust','Tension','Compression','Normal contact force','Magnetic force','Electrostatic force']
+  },
+  {
+    subject: 'Physics', topic: 'The Solar System', level: 'KS3', difficulty: 'Easy',
+    question: 'Name 10 objects found in our solar system.',
+    answers: ['Sun','Mercury','Venus','Earth','Mars','Jupiter','Saturn','Uranus','Neptune','Moon']
+  },
+  {
+    subject: 'Physics', topic: 'Circuit Components', level: 'Both', difficulty: 'Medium',
+    question: 'Name 10 components found in electrical circuits.',
+    answers: ['Cell','Battery','Switch','Bulb','Resistor','Variable resistor','Ammeter','Voltmeter','Diode','Fuse']
+  },
+  {
+    subject: 'Physics', topic: 'Energy Resources', level: 'GCSE', difficulty: 'Medium',
+    question: 'Name 10 energy resources used to generate electricity.',
+    answers: ['Coal','Oil','Natural gas','Nuclear','Solar','Wind','Hydroelectric','Tidal','Wave','Geothermal']
+  },
+  {
+    subject: 'Physics', topic: 'Units of Measurement', level: 'GCSE', difficulty: 'Medium',
+    question: 'Name 10 units of measurement used in physics.',
+    answers: ['Metre','Kilogram','Second','Newton','Joule','Watt','Volt','Ohm','Ampere','Pascal']
+  },
+];
+
+/* ----------------------------------------------------------------
+   QUESTION BANK
+   Holds the embedded data and provides multi-dimension filtering
+   (subject + level + difficulty) plus selection / random pick.
+   ---------------------------------------------------------------- */
+const QuestionBank = (() => {
+  const allQuestions = QUESTION_DATA;
+  let filtered = [...allQuestions];
+  let selected = null; // The selected question OBJECT (stable across filtering)
+
+  // Active filter values for each dimension; 'All' means no constraint.
+  const filters = { subject: 'All', level: 'All', difficulty: 'All' };
+
+  /**
+   * Rebuild `filtered` by AND-combining every active filter dimension.
+   * Level 'Both' questions match either KS3 or GCSE level filters.
+   */
+  function applyFilters() {
+    filtered = allQuestions.filter(q => {
+      if (filters.subject    !== 'All' && q.subject    !== filters.subject)    return false;
+      if (filters.difficulty !== 'All' && q.difficulty !== filters.difficulty) return false;
+      if (filters.level      !== 'All') {
+        // A 'Both' question is valid at every level filter.
+        if (q.level !== filters.level && q.level !== 'Both') return false;
+      }
+      return true;
+    });
+  }
+
+  /** Set one filter dimension and recompute the filtered list. */
+  function setFilter(dimension, value) {
+    filters[dimension] = value;
+    applyFilters();
+  }
+
+  /** The selected question object, or null if it's not in the current view. */
+  function getSelected() {
+    return selected && filtered.includes(selected) ? selected : null;
+  }
+
+  /** Select by index into the CURRENT filtered list. */
+  function selectByIndex(i) { selected = filtered[i] ?? null; }
+
+  /** Pick a random question from the current filtered set. */
+  function pickRandom() {
+    if (!filtered.length) return null;
+    selected = filtered[Math.floor(Math.random() * filtered.length)];
+    return selected;
+  }
+
+  return { setFilter, getSelected, selectByIndex, pickRandom,
+           get filtered() { return filtered; },
+           get filters()  { return filters; },
+           get total()    { return allQuestions.length; } };
+})();
+
+/* ----------------------------------------------------------------
+   GAME STATE
+   Single mutable object representing the live game. All game logic
+   reads from and writes to this object; renderers only read it.
+   ---------------------------------------------------------------- */
+const GameState = {
+  // Static per-game data (set at game start)
+  question:    '',   // The question text
+  topic:       '',   // Topic string (bank games only)
+  level:       '',   // KS3 / GCSE / Both (bank games only)
+  difficulty:  '',   // Difficulty string (bank games only)
+  answers:     [],   // Array of { pos: 1-10, text: string }
+
+  // Dynamic state (mutates during play)
+  foundSet:    new Set(), // positions (1-10) the player has found
+  lives:       3,
+  isOver:      false,
+  isAnimating: false,
+
+  // Source mode: 'bank' | 'custom'
+  mode: 'bank',
+
+  /** Initialise a new game from a question object or custom form data. */
+  init({ question, answers, topic = '', level = '', difficulty = '', mode = 'bank' }) {
+    this.question   = question;
+    this.topic      = topic;
+    this.level      = level;
+    this.difficulty = difficulty;
+    this.answers    = answers.map((text, i) => ({ pos: i + 1, text }));
+    this.foundSet   = new Set();
+    this.lives      = 3;
+    this.isOver     = false;
+    this.isAnimating = false;
+    this.mode       = mode;
+  },
+
+  /** Case-insensitive, punctuation-stripped comparison. */
+  normalize(s) { return s.toLowerCase().replace(/[^a-z0-9]/g, ''); },
+
+  /** Check a guess; returns matching pos (1-10) or -1. */
+  checkGuess(guess) {
+    const norm = this.normalize(guess);
+    for (const { pos, text } of this.answers) {
+      if (this.foundSet.has(pos)) continue;
+      if (this.normalize(text) === norm) return pos;
+    }
+    return -1;
+  },
+
+  /** The lowest unfound position number (the current "ceiling"). */
+  get ceiling() {
+    for (let p = 1; p <= 10; p++) if (!this.foundSet.has(p)) return p;
+    return 1;
+  },
+
+  /** The answer text for a position. */
+  textAt(pos) { return this.answers[pos - 1]?.text ?? ''; },
+};
+
+/* ----------------------------------------------------------------
+   UI HELPERS
+   ---------------------------------------------------------------- */
+const $ = id => document.getElementById(id);
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $(id).classList.add('active');
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+/* ----------------------------------------------------------------
+   SETUP SCREEN — MODE SWITCHING
+   ---------------------------------------------------------------- */
+let currentMode = 'bank'; // 'bank' | 'custom'
+
+function switchMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.mode-panel').forEach(p => p.classList.remove('active'));
+  $('tab-' + mode).classList.add('active');
+  $('panel-' + mode).classList.add('active');
+  updateStartBtn();
+}
+
+function updateStartBtn() {
+  const btn = $('start-btn');
+  if (currentMode === 'bank') {
+    btn.disabled = QuestionBank.getSelected() === null;
+    btn.textContent = QuestionBank.getSelected()
+      ? `▶ START: "${QuestionBank.getSelected().topic}"`
+      : '▶ SELECT A QUESTION FIRST';
+  } else {
+    btn.disabled = false;
+    btn.textContent = '▶ START GAME';
+  }
+}
+
+/* ----------------------------------------------------------------
+   SETUP SCREEN — CUSTOM GAME: build the 10 answer input fields
+   ---------------------------------------------------------------- */
+function buildSetupInputs() {
+  const grid = $('answers-grid');
+  grid.innerHTML = '';
+  for (let i = 1; i <= 10; i++) {
+    const row = document.createElement('div');
+    row.className = 'ans-row';
+    row.innerHTML = `
+      <span class="ans-num">${i}</span>
+      <input class="ans-input" id="a${i}" placeholder="Answer ${i}…" autocomplete="off" />`;
+    grid.appendChild(row);
+  }
+}
+
+/* ----------------------------------------------------------------
+   QUESTION BANK — UI RENDERING
+   ---------------------------------------------------------------- */
+function renderBankUI() {
+  const container = $('question-cards');
+  container.innerHTML = '';
+
+  // Update the count label so the user sees how many match the filters
+  const countLabel = $('bank-count-label');
+  if (countLabel) {
+    countLabel.textContent =
+      `Select a question · ${QuestionBank.filtered.length} of ${QuestionBank.total}`;
+  }
+
+  if (!QuestionBank.filtered.length) {
+    container.innerHTML = '<div style="color:#888;font-size:13px;grid-column:1/-1;padding:16px;text-align:center">No questions match these filters. Try widening them.</div>';
+    return;
+  }
+
+  const selectedQ = QuestionBank.getSelected();
+
+  QuestionBank.filtered.forEach((q, i) => {
+    const card = document.createElement('div');
+    card.className = 'q-card' + (q === selectedQ ? ' selected' : '');
+    card.dataset.index = i;
+    // Map 'Both' to a clean badge label/class
+    const lvlClass = q.level === 'Both' ? 'lvl-Both' : 'lvl-' + q.level;
+    const lvlLabel = q.level === 'Both' ? 'KS3 / GCSE' : q.level;
+    card.innerHTML = `
+      <div class="q-card-topic">${q.subject} · ${q.topic}</div>
+      <div class="q-card-question">${q.question}</div>
+      <div class="q-card-badges">
+        <span class="q-card-diff ${lvlClass}">${lvlLabel}</span>
+        <span class="q-card-diff diff-${q.difficulty}">${q.difficulty}</span>
+      </div>`;
+    card.addEventListener('click', () => {
+      QuestionBank.selectByIndex(i);
+      document.querySelectorAll('.q-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      updateStartBtn();
+    });
+    container.appendChild(card);
+  });
+}
+
+/**
+ * Handle a filter button press for any dimension (subject/level/difficulty).
+ * Updates that row's active button, recomputes the filtered set, and
+ * re-renders the cards (preserving any still-visible selection).
+ */
+function setFilter(dimension, value) {
+  // Highlight the chosen button within its own row only
+  const row = $('filter-' + dimension);
+  if (row) {
+    row.querySelectorAll('.filter-btn').forEach(b =>
+      b.classList.toggle('active', b.textContent === value || (value === 'All' && b.textContent === 'All')));
+  }
+  QuestionBank.setFilter(dimension, value);
+  renderBankUI();
+  updateStartBtn();
+}
+
+/** Pick a random question from the current filtered set, then highlight it. */
+function selectRandom() {
+  const q = QuestionBank.pickRandom();
+  if (!q) return;
+  renderBankUI();           // re-render highlights the selected card by identity
+  updateStartBtn();
+  // Scroll the newly-selected card into view
+  const cards = document.querySelectorAll('.q-card');
+  const target = [...cards].find(c => c.classList.contains('selected'));
+  if (target) target.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+/* ----------------------------------------------------------------
+   GAME START — bridges setup → game
+   ---------------------------------------------------------------- */
+function startGame() {
+  if (currentMode === 'bank') {
+    // Load data from the question bank
+    const q = QuestionBank.getSelected();
+    if (!q) { alert('Please select a question first.'); return; }
+    GameState.init({
+      question:   q.question,
+      answers:    q.answers,
+      topic:      q.subject + ' · ' + q.topic,
+      level:      q.level,
+      difficulty: q.difficulty,
+      mode:       'bank',
+    });
+  } else {
+    // Load data from the custom input form
+    const questionText = $('question-input').value.trim();
+    if (!questionText) { alert('Please enter a question.'); return; }
+    const answers = [];
+    for (let i = 1; i <= 10; i++) {
+      const v = $('a' + i)?.value?.trim();
+      if (!v) { alert(`Please enter answer #${i}.`); return; }
+      answers.push(v);
+    }
+    GameState.init({ question: questionText, answers, mode: 'custom' });
+  }
+
+  // Render question box
+  $('game-question-text').textContent = GameState.question;
+  const meta = $('game-question-meta');
+  if (GameState.topic) {
+    const lvlClass = GameState.level === 'Both' ? 'lvl-Both' : 'lvl-' + GameState.level;
+    const lvlLabel = GameState.level === 'Both' ? 'KS3 / GCSE' : GameState.level;
+    meta.innerHTML = `
+      <span style="color:#aa00ff">${GameState.topic}</span>
+      ${GameState.level ? `<span class="q-card-diff ${lvlClass}">${lvlLabel}</span>` : ''}
+      <span class="q-card-diff diff-${GameState.difficulty}">${GameState.difficulty}</span>`;
+  } else {
+    meta.innerHTML = '';
+  }
+
+  showScreen('game-screen');
+
+  // Defer setup until screen is visible so layout measurements are valid
+  setTimeout(() => {
+    measurePyramidWidth();
+    renderLives();
+    renderPyramid();
+    updateFoundCount();
+    $('status-msg').textContent = '';
+    const gi = $('guess-input');
+    gi.focus();
+    gi.onkeydown = e => { if (e.key === 'Enter') submitGuess(); };
+  }, 30);
+}
+
+/* ----------------------------------------------------------------
+   GAME SCREEN — SPEED CONTROL
+   ---------------------------------------------------------------- */
+function speedBase() { return parseInt($('speed-slider').value, 10); }
+
+function updateSpeedLabel() {
+  const v = speedBase();
+  $('speed-val').textContent = v < 80 ? 'Fast' : v < 140 ? 'Normal' : v < 220 ? 'Slow' : 'Very slow';
+}
+
+/** Delay in ms for each step; accelerates as the player climbs higher. */
+function stepDelay(stepIndex) {
+  const base = speedBase();
+  return base + stepIndex * Math.round(base * 0.18);
+}
+
+/* ----------------------------------------------------------------
+   PYRAMID RENDERING
+   ---------------------------------------------------------------- */
+let pyramidWidth = 480;
+
+function measurePyramidWidth() {
+  const pyr = $('pyramid');
+  if (!pyr) return;
+  const style = getComputedStyle(pyr);
+  pyramidWidth = pyr.clientWidth
+    - (parseFloat(style.paddingLeft) || 0)
+    - (parseFloat(style.paddingRight) || 0);
+}
+
+/** Width of a pyramid cell at position pos (1=narrowest, 10=widest). */
+function cellWidth(pos) { return Math.round(pyramidWidth * pos / 10); }
+
+/** Shrink font-size until the inner text fits within the cell. */
+function fitText(inner, cell) {
+  const maxW = cell.clientWidth - 12;
+  let size = 16;
+  inner.style.fontSize = size + 'px';
+  while (inner.scrollWidth > maxW && size > 7) {
+    size -= 0.5;
+    inner.style.fontSize = size + 'px';
+  }
+}
+
+/** Full re-render of the pyramid from GameState. */
+function renderPyramid() {
+  const pyr = $('pyramid');
+  pyr.innerHTML = '';
+  for (let pos = 1; pos <= 10; pos++) {
+    const row  = document.createElement('div');
+    row.className = 'prow';
+    const cell  = document.createElement('div');
+    const isFound = GameState.foundSet.has(pos);
+    cell.className = 'cell ' + (isFound ? 'st-found' : 'st-empty');
+    cell.id = 'cell-' + pos;
+    cell.style.width = cellWidth(pos) + 'px';
+    const inner = document.createElement('span');
+    inner.className = 'cell-inner';
+    inner.id = 'ctxt-' + pos;
+    inner.textContent = isFound ? GameState.textAt(pos) : String(pos);
+    cell.appendChild(inner);
+    row.appendChild(cell);
+    pyr.appendChild(row);
+    if (isFound) requestAnimationFrame(() => fitText(inner, cell));
+  }
+}
+
+/** Apply a state class and optional text to a single cell. */
+function applyCell(pos, state, text) {
+  const c = $('cell-' + pos);
+  const t = $('ctxt-' + pos);
+  if (!c) return;
+  c.className = 'cell ' + state;
+  if (t) {
+    if (text !== undefined) {
+      t.textContent = text;
+      t.style.fontSize = '14px';
+      requestAnimationFrame(() => fitText(t, c));
+    } else {
+      t.textContent = String(pos);
+      t.style.fontSize = '16px';
+    }
+  }
+}
+
+/** Restore a cell to its correct resting state (found or empty). */
+function restoreCell(pos) {
+  if (GameState.foundSet.has(pos)) {
+    applyCell(pos, 'st-found', GameState.textAt(pos));
+  } else {
+    const c = $('cell-' + pos);
+    const t = $('ctxt-' + pos);
+    if (c) c.className = 'cell st-empty';
+    if (t) { t.textContent = String(pos); t.style.fontSize = '16px'; }
+  }
+}
+
+function updateFoundCount() {
+  $('found-count').textContent = `Found: ${GameState.foundSet.size} / 10`;
+}
+
+function renderLives() {
+  const d = $('lives-display');
+  d.innerHTML = '';
+  for (let i = 0; i < 3; i++) {
+    const s = document.createElement('span');
+    s.className = 'life';
+    s.textContent = i < GameState.lives ? '♥' : '✕';
+    s.style.color  = i < GameState.lives ? '#00ff88' : '#aa00ff';
+    d.appendChild(s);
+  }
+}
+
+/* ----------------------------------------------------------------
+   CORE GUESS LOGIC
+   ---------------------------------------------------------------- */
+async function submitGuess() {
+  if (GameState.isOver || GameState.isAnimating) return;
+  const input = $('guess-input');
+  const guess = input.value.trim();
+  if (!guess) return;
+  input.value = '';
+
+  GameState.isAnimating = true;
+  const matchPos = GameState.checkGuess(guess);
+  if (matchPos !== -1) await animateCorrect(matchPos);
+  else                 await animateWrong(guess);
+  GameState.isAnimating = false;
+}
+
+/** "Climbing" animation for a CORRECT guess. */
+async function animateCorrect(targetPos) {
+  $('status-msg').textContent = '';
+  let stepIndex = 0;
+  // Animate from row 10 down to targetPos, lighting each cell as we go
+  for (let step = 10; step >= targetPos; step--) {
+    playNote(stepIndex);
+    applyCell(step, 'st-ac', step === targetPos ? GameState.textAt(targetPos) : String(step));
+    if (step > targetPos) {
+      await sleep(stepDelay(stepIndex));
+      restoreCell(step);
+    }
+    stepIndex++;
+  }
+  // Lock in the found cell
+  GameState.foundSet.add(targetPos);
+  await sleep(100);
+  playPing();
+  applyCell(targetPos, 'st-found', GameState.textAt(targetPos));
+  $('status-msg').textContent = `#${targetPos}: "${GameState.textAt(targetPos)}" — correct!`;
+  updateFoundCount();
+  if (GameState.foundSet.size === 10) setTimeout(() => endGame(true), 1100);
+}
+
+/** "Wrong answer" animation: sweep to ceiling then flash red. */
+async function animateWrong(guess) {
+  $('status-msg').textContent = '';
+  const ceiling = GameState.ceiling;
+  let stepIndex = 0;
+  for (let step = 10; step >= ceiling; step--) {
+    playNote(stepIndex);
+    applyCell(step, 'st-ac', GameState.foundSet.has(step) ? GameState.textAt(step) : String(step));
+    if (step > ceiling) {
+      await sleep(stepDelay(stepIndex));
+      restoreCell(step);
+    }
+    stepIndex++;
+  }
+  await sleep(200);
+  const gs = $('game-screen');
+  gs.classList.add('flash-red');
+  playRaspberry();
+  // Flash all unfound cells red
+  for (let p = 1; p <= 10; p++) {
+    if (!GameState.foundSet.has(p)) applyCell(p, 'st-rw', p === ceiling ? `✕ "${guess}"` : '');
+  }
+  $('status-msg').textContent = `"${guess}" is not on the board!`;
+  await sleep(560);
+  gs.classList.remove('flash-red');
+  await sleep(400);
+  for (let p = 1; p <= 10; p++) restoreCell(p);
+
+  GameState.lives--;
+  renderLives();
+  if (GameState.lives <= 0) setTimeout(() => endGame(false), 400);
+}
+
+/* ----------------------------------------------------------------
+   END GAME
+   ---------------------------------------------------------------- */
+function passGame() {
+  if (!GameState.isOver && !GameState.isAnimating) endGame(false);
+}
+
+function endGame(won) {
+  GameState.isOver = true;
+  const title = $('end-title');
+  title.textContent = won ? '🎉 BOARD CLEARED!' : 'GAME OVER';
+  title.style.color      = won ? '#00ff88' : '#ff0055';
+  title.style.textShadow = won ? '0 0 20px #00ff88' : '0 0 20px #ff0055';
+  $('end-score').textContent =
+    `Found ${GameState.foundSet.size} of 10 · ${GameState.lives} ${GameState.lives === 1 ? 'life' : 'lives'} remaining`;
+
+  const list = $('end-answers');
+  list.innerHTML = '';
+  for (let i = 1; i <= 10; i++) {
+    const row = document.createElement('div');
+    row.className = 'end-answer-row';
+    const pos = document.createElement('span');
+    pos.className = 'end-pos';
+    pos.textContent = '#' + i;
+    const txt = document.createElement('span');
+    txt.className = 'end-text ' + (GameState.foundSet.has(i) ? 'end-found' : 'end-missed');
+    txt.textContent = GameState.textAt(i) + (GameState.foundSet.has(i) ? ' ✓' : '');
+    row.appendChild(pos);
+    row.appendChild(txt);
+    list.appendChild(row);
+  }
+  showScreen('end-screen');
+}
+
+/** Replay the same question without going back to setup. */
+function replayGame() {
+  GameState.init({
+    question:   GameState.question,
+    answers:    GameState.answers.map(a => a.text),
+    topic:      GameState.topic,
+    level:      GameState.level,
+    difficulty: GameState.difficulty,
+    mode:       GameState.mode,
+  });
+  $('game-question-text').textContent = GameState.question;
+  showScreen('game-screen');
+  setTimeout(() => {
+    measurePyramidWidth();
+    renderLives();
+    renderPyramid();
+    updateFoundCount();
+    $('status-msg').textContent = '';
+    $('guess-input').focus();
+  }, 30);
+}
+
+/** Go back to setup, preserving any bank selection. */
+function returnToSetup() {
+  showScreen('setup-screen');
+  if (currentMode === 'custom') {
+    $('question-input').focus();
+  }
+}
+
+/* ----------------------------------------------------------------
+   INITIALISE
+   ---------------------------------------------------------------- */
+buildSetupInputs(); // Build the 10 custom answer inputs on load
+
+// The question bank is embedded, so no fetch is needed — render immediately.
+$('bank-loading').style.display = 'none';
+$('bank-ui').style.display = 'block';
+renderBankUI();
+updateStartBtn();
+
+// Re-measure pyramid on resize
+window.addEventListener('resize', () => {
+  measurePyramidWidth();
+  if (!GameState.isOver) renderPyramid();
+});
+</script>
+</body>
+</html>

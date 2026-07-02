@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Science Jeopardy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --stage1:#061f47; --stage2:#0b3070; --stage3:#0a2456;
+  --yellow:#ffd21e; --yellow-edge:#b88a00; --yellow-glow:rgba(255,210,30,.45);
+  --ink:#0a1430;
+  --amber:#ff9426;
+  --text:#eaf2ff; --muted:#9fb6df;
+  --panel:#0c2453; --panel-edge:#1c3f7e;
+  --display:'Archivo Black','Arial Black',system-ui,sans-serif;
+  --body:'Space Grotesk',system-ui,-apple-system,'Segoe UI',sans-serif;
+
+  --teamA:#e8a020; --teamA-edge:#a66f10; --teamA-ink:#241606;
+  --teamB:#1ba8a0; --teamB-edge:#0e6b66; --teamB-ink:#04211f;
+  --teamC:#cc3d82; --teamC-edge:#8f2a5c; --teamC-ink:#2c0f1c;
+  --teamD:#3b7dd8; --teamD-edge:#1f4fb0; --teamD-ink:#eaf2ff;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;min-height:100vh;color:var(--text);
+  font-family:var(--body);
+  background:
+    radial-gradient(120% 80% at 50% -10%, rgba(120,180,255,.18), transparent 60%),
+    radial-gradient(90% 70% at 50% 120%, rgba(0,0,0,.45), transparent 55%),
+    linear-gradient(180deg,var(--stage2) 0%, var(--stage1) 55%, var(--stage3) 100%);
+  padding:20px 14px 48px;display:flex;flex-direction:column;align-items:center;
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:repeating-linear-gradient(0deg, rgba(255,255,255,.025) 0 1px, transparent 1px 3px);
+  mix-blend-mode:overlay;opacity:.5;
+}
+.wrap{position:relative;z-index:1;width:100%;max-width:1180px;display:flex;flex-direction:column;align-items:center}
+
+/* ---- title ---- */
+.titlebar{text-align:center;margin-bottom:18px;padding:22px 34px;border-radius:16px;position:relative;
+  background:radial-gradient(70% 140% at 50% 50%, #1a4fb0 0%, #0c2e73 55%, #071b47 100%);
+  box-shadow:0 14px 40px rgba(0,0,0,.4), inset 0 0 0 2px rgba(255,255,255,.08);
+}
+.titlebar h1{
+  font-family:var(--display);font-size:clamp(30px,5.4vw,50px);margin:0;line-height:1;
+  color:#fff;
+  text-shadow:0 3px 10px rgba(0,0,0,.55);
+  letter-spacing:1px;
+}
+.titlebar .sub{
+  margin-top:10px;font-size:12.5px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);
+  font-weight:500;
+}
+
+/* ---- setup ---- */
+.setup{
+  width:100%;max-width:820px;background:linear-gradient(180deg,var(--panel),#0a1f49);
+  border:1px solid var(--panel-edge);border-radius:16px;padding:24px;
+  box-shadow:0 18px 50px rgba(0,0,0,.4);
+}
+.setup .step{font-family:var(--display);font-size:13px;letter-spacing:.5px;color:var(--amber);text-transform:uppercase;margin:0 0 12px}
+.setup .step:not(:first-child){margin-top:22px}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.chip{
+  background:#0a1f49;border:1.5px solid var(--panel-edge);color:var(--text);
+  padding:10px 18px;border-radius:24px;cursor:pointer;font:500 14px var(--body);
+  transition:transform .12s ease,border-color .15s ease,background .15s ease;user-select:none;
+}
+.chip:hover{border-color:var(--amber);transform:translateY(-1px)}
+.chip.on{background:var(--amber);border-color:var(--amber);color:#231100;font-weight:700;box-shadow:0 0 16px rgba(255,148,38,.4)}
+.note{font-size:12px;color:var(--muted);margin-top:10px}
+.teams{display:flex;gap:14px;flex-wrap:wrap;margin-top:4px}
+.team-field{flex:1;min-width:200px}
+.team-field label{display:flex;align-items:center;gap:7px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
+.team-field .swatch{display:inline-block;width:11px;height:11px;border-radius:2px;vertical-align:middle;border:1px solid rgba(255,255,255,.35)}
+.team-field input{
+  width:100%;background:#0a1f49;border:1.5px solid var(--panel-edge);border-radius:10px;
+  color:var(--text);padding:11px 13px;font:500 15px var(--body);
+}
+.team-field input:focus{outline:none;border-color:var(--amber)}
+.start{
+  width:100%;margin-top:22px;padding:15px;border:none;border-radius:12px;cursor:pointer;
+  font-family:var(--display);font-size:17px;letter-spacing:1px;color:#231100;
+  background:linear-gradient(180deg,#ffe14d,var(--yellow));
+  box-shadow:0 0 24px var(--yellow-glow), inset 0 -3px 0 var(--yellow-edge);
+}
+.start:hover{filter:brightness(1.05)}
+
+/* ---- game ---- */
+.game{display:none;width:100%;flex-direction:column;align-items:center}
+.game.on{display:flex}
+.scorebar{display:flex;justify-content:center;gap:14px;width:100%;max-width:920px;margin-bottom:16px;flex-wrap:wrap}
+.scard{
+  flex:1;min-width:150px;background:linear-gradient(180deg,var(--panel),#0a1f49);border-radius:14px;padding:12px 16px;
+  border:2px solid var(--panel-edge);text-align:center;
+}
+.scard .who{font-family:var(--display);font-size:13px;letter-spacing:.5px;margin-bottom:6px;color:var(--text)}
+.scard .num{font-family:var(--body);font-weight:700;font-size:28px;line-height:1;color:var(--text)}
+
+.boardbox{width:100%;max-width:1120px;margin:2px auto 16px;overflow-x:auto}
+.board{display:grid;gap:6px;min-width:760px}
+.cell{border-radius:10px;display:flex;align-items:center;justify-content:center;text-align:center;padding:10px 6px}
+.cathead{
+  background:#0c2f7a;border:1.5px solid var(--panel-edge);
+  font-family:var(--body);font-weight:700;font-size:13px;line-height:1.35;letter-spacing:.3px;color:#fff;
+  min-height:70px;text-transform:uppercase;
+}
+.tile{
+  min-height:64px;cursor:pointer;background:#0a2456;
+  border:1.5px solid var(--panel-edge);font-family:var(--body);font-weight:700;font-size:26px;color:var(--yellow);
+  transition:transform .12s ease,border-color .15s ease,filter .15s ease;
+}
+.tile:hover{border-color:var(--amber);transform:translateY(-2px);filter:brightness(1.08)}
+.tile:focus{outline:none;border-color:var(--amber);border-width:2px}
+.tile.done{
+  cursor:default;background:#0a1f49;color:var(--panel-edge);border-color:var(--panel-edge);
+  font-family:var(--body);font-size:20px;
+}
+.tile.done:hover{transform:none;filter:none}
+
+.controls{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.ctrl{background:#0a1f49;border:1.5px solid var(--panel-edge);color:var(--muted);
+  padding:9px 18px;border-radius:22px;font:500 12.5px var(--body);cursor:pointer}
+.ctrl:hover{border-color:var(--amber);color:var(--text)}
+
+/* ---- modal ---- */
+.backdrop{display:none;position:fixed;inset:0;z-index:50;background:rgba(3,10,28,.85);
+  align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(3px)}
+.backdrop.on{display:flex}
+.modal{
+  width:100%;max-width:640px;background:linear-gradient(180deg,#0e2a5f,#0a1d44);
+  border:1px solid var(--panel-edge);border-radius:18px;padding:26px 28px 24px;
+  box-shadow:0 24px 60px rgba(0,0,0,.55);max-height:88vh;overflow-y:auto;
+}
+.m-top{display:flex;align-items:center;gap:16px;margin-bottom:16px}
+.m-points{
+  flex-shrink:0;width:64px;height:64px;display:flex;align-items:center;justify-content:center;
+  font-family:var(--body);font-weight:700;font-size:20px;color:var(--ink);
+  background:var(--yellow);border:3px solid var(--yellow-edge);border-radius:12px;
+}
+.m-cat{font-family:var(--display);font-size:13px;letter-spacing:.5px;color:var(--amber);text-transform:uppercase}
+.m-prompt{font-size:11.5px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:1.5px}
+.m-q{font-size:19px;line-height:1.5;margin:6px 0 20px;color:var(--text)}
+.m-ans{display:none;background:#0a1f49;border-left:4px solid var(--yellow);border-radius:0 10px 10px 0;
+  padding:13px 16px;margin-bottom:14px}
+.m-ans.show{display:block}
+.m-ans .lbl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:3px}
+.m-ans .val{font-size:18px;font-weight:700;color:var(--yellow)}
+.m-note{display:none;background:rgba(255,148,38,.08);border-left:4px solid var(--amber);border-radius:0 10px 10px 0;
+  padding:11px 16px;margin-bottom:20px}
+.m-note.show{display:block}
+.m-note .lbl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--amber);display:block;margin-bottom:3px}
+.m-note .val{font-size:13.5px;line-height:1.5;color:var(--text)}
+.mrow{display:flex;gap:10px;flex-wrap:wrap}
+.mrow+.mrow{margin-top:10px}
+.mbtn{flex:1;min-width:120px;padding:13px;border:none;border-radius:10px;cursor:pointer;
+  font:700 12.5px var(--body);letter-spacing:.4px;text-transform:uppercase}
+.mbtn.reveal{background:var(--amber);color:#231100}
+.mbtn.none{background:transparent;border:1.5px solid var(--panel-edge);color:var(--muted)}
+.mbtn:hover{filter:brightness(1.05)}
+
+/* ---- win overlay ---- */
+.win{display:none;position:fixed;inset:0;z-index:60;background:rgba(3,10,28,.93);
+  flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px}
+.win.on{display:flex}
+.win h2{font-family:var(--display);font-size:clamp(28px,6vw,52px);margin:0 0 10px;letter-spacing:1px;color:var(--yellow);
+  text-shadow:0 0 30px var(--yellow-glow)}
+.win .desc{color:var(--muted);letter-spacing:.5px;margin-bottom:22px;font-size:14px}
+.win .finalscores{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:28px}
+.win .fscard{background:linear-gradient(180deg,var(--panel),#0a1f49);border-radius:12px;padding:12px 20px;border:2px solid var(--panel-edge);min-width:130px}
+.win .fscard .who{font-family:var(--display);font-size:13px;margin-bottom:6px}
+.win .fscard .num{font-family:var(--body);font-weight:700;font-size:26px;color:var(--yellow)}
+.win .again{font-family:var(--display);font-size:15px;letter-spacing:.5px;color:#231100;
+  background:var(--yellow);border:none;border-radius:11px;padding:13px 30px;cursor:pointer;
+  box-shadow:0 0 22px var(--yellow-glow)}
+
+@media (max-width:760px){
+  .board{min-width:660px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="titlebar">
+    <h1>SCIENCE JEOPARDY!</h1>
+    <div class="sub">Pick a category and a point value — answer in the form of a question</div>
+  </div>
+
+  <!-- SETUP -->
+  <div class="setup" id="setup">
+    <p class="step">1 — Number of teams</p>
+    <div class="row" id="teamCountRow">
+      <div class="chip" data-n="2">2 Teams</div>
+      <div class="chip on" data-n="3">3 Teams</div>
+      <div class="chip" data-n="4">4 Teams</div>
+    </div>
+
+    <p class="step">2 — Team names</p>
+    <div class="teams" id="teamFields"></div>
+
+    <button class="start" id="startBtn">Start game</button>
+  </div>
+
+  <!-- GAME -->
+  <div class="game" id="game">
+    <div class="scorebar" id="scorebar"></div>
+    <div class="boardbox">
+      <div class="board" id="board"></div>
+    </div>
+    <div class="controls">
+      <div class="ctrl" id="resetBtn">Reset game</div>
+      <div class="ctrl" id="finalBtn">Show scores</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- CLUE MODAL -->
+<div class="backdrop" id="backdrop">
+  <div class="modal">
+    <div class="m-top">
+      <div class="m-points" id="mPoints">100</div>
+      <div>
+        <div class="m-cat" id="mCat">Category</div>
+        <div class="m-prompt">Clue</div>
+      </div>
+    </div>
+    <div class="m-q" id="mClue">Clue text</div>
+    <div class="m-ans" id="mAns"><span class="lbl">Correct response</span><span class="val" id="mAnsVal"></span></div>
+    <div class="m-note" id="mNote"><span class="lbl">Teacher note</span><span class="val" id="mNoteVal"></span></div>
+    <div class="mrow">
+      <button class="mbtn reveal" id="revealBtn">Reveal answer</button>
+    </div>
+    <div class="mrow" id="awardRow"></div>
+    <div class="mrow">
+      <button class="mbtn none" id="skipBtn">Mark answered — no score</button>
+    </div>
+  </div>
+</div>
+
+<!-- WIN OVERLAY -->
+<div class="win" id="win">
+  <h2>Final Scores</h2>
+  <div class="desc">All 30 questions answered — here's how it finished</div>
+  <div class="finalscores" id="finalScores"></div>
+  <button class="again" id="againBtn">Play again</button>
+</div>
+
+<script>
+const DATA=[
+  {cat:"Cell Biology, Organisation & Digestion", qs:[
+    {pts:100, clue:"This is the basic structural and functional unit of all living organisms.", resp:"What is a cell?"},
+    {pts:200, clue:"This is the name given to a group of different tissues working together to carry out a specific job, such as the stomach or the heart.", resp:"What is an organ?"},
+    {pts:300, clue:"This process breaks down large, insoluble food molecules into smaller, soluble ones that can be absorbed into the blood.", resp:"What is digestion?"},
+    {pts:400, clue:"This type of cell division produces two genetically identical daughter cells, used in the body for growth and repair.", resp:"What is mitosis?", note:"Full marks require \u201cgenetically identical\u201d and a correct function (growth/repair) \u2014 students often confuse this with meiosis if they only say \u201ccell division.\u201d"},
+    {pts:500, clue:"Using magnification = image size \u00f7 actual size, calculate the magnification of a cell drawn 15 mm long, if its actual length is 0.03 mm.", resp:"What is \u00d7500?", note:"Method mark for correct formula and unit conversion (both measurements in mm): 15 \u00f7 0.03 = 500. Final mark requires \u201c\u00d7500\u201d with no units \u2014 a common error is leaving units on the answer."}
+  ]},
+  {cat:"Human Body Systems & Health", qs:[
+    {pts:100, clue:"This muscular organ pumps blood around the entire body.", resp:"What is the heart?"},
+    {pts:200, clue:"This type of blood vessel carries blood away from the heart, usually under high pressure.", resp:"What is an artery?"},
+    {pts:300, clue:"These tiny air sacs in the lungs are the site of gas exchange, where oxygen diffuses into the blood.", resp:"What are alveoli?"},
+    {pts:400, clue:"This hormone, released by the pancreas, lowers blood glucose concentration by causing cells to take up glucose and the liver to store it as glycogen.", resp:"What is insulin?", note:"Award marks for naming the pancreas as the source and glycogen as the storage product \u2014 \u201cit lowers blood sugar\u201d alone misses the mechanism marks."},
+    {pts:500, clue:"Explain, using a negative feedback mechanism, how the body responds when blood glucose concentration rises too high after a meal.", resp:"What is: the pancreas releases insulin, liver and muscle cells take up glucose and convert it to glycogen, and blood glucose returns to normal?", note:"Four marking points: (1) pancreas releases insulin, (2) glucose taken up by liver/muscle cells, (3) conversion to glycogen (glycogenesis), (4) blood glucose returns to normal \u2014 this is the negative feedback loop."}
+  ]},
+  {cat:"Particles, Atoms & the Periodic Table", qs:[
+    {pts:100, clue:"This is the smallest part of an element that can exist and still be recognised as that element.", resp:"What is an atom?"},
+    {pts:200, clue:"This tiny, positively charged particle is found inside the nucleus of an atom.", resp:"What is a proton?"},
+    {pts:300, clue:"This table organises every known element according to its properties and electronic structure.", resp:"What is the periodic table?"},
+    {pts:400, clue:"Atoms of the same element that have the same number of protons but different numbers of neutrons are described by this term.", resp:"What are isotopes?", note:"Full marks need \u201csame protons, different neutrons\u201d stated explicitly \u2014 \u201cdifferent types of the same element\u201d alone is too vague for a GCSE mark scheme."},
+    {pts:500, clue:"Chlorine exists as two isotopes: 75% chlorine-35 and 25% chlorine-37. Using this data, calculate its relative atomic mass to one decimal place.", resp:"What is 35.5?", note:"Method mark for the weighted mean calculation: (75 \u00d7 35 + 25 \u00d7 37) \u00f7 100. Final mark for the correct answer given to 1 decimal place."}
+  ]},
+  {cat:"Chemical Reactions & Quantitative Chemistry", qs:[
+    {pts:100, clue:"This type of reaction releases energy to the surroundings, usually shown by a rise in temperature.", resp:"What is an exothermic reaction?"},
+    {pts:200, clue:"This law states that no atoms are gained or lost during a chemical reaction, so the total mass of the reactants equals the total mass of the products.", resp:"What is the law of conservation of mass?"},
+    {pts:300, clue:"This type of reaction happens when an acid and an alkali react together, producing a salt and water.", resp:"What is neutralisation?"},
+    {pts:400, clue:"Grinding a solid reactant into a powder increases the rate of reaction because it increases this property, resulting in more frequent successful collisions between reacting particles.", resp:"What is surface area (to volume ratio)?", note:"Students must explicitly link increased surface area \u2192 more particles exposed/available to react \u2192 higher frequency of successful collisions. Simply stating \u201cit reacts faster\u201d misses the mechanism marks."},
+    {pts:500, clue:"Using moles = mass \u00f7 Mr, calculate the number of moles in 6 g of magnesium (Mr of Mg = 24).", resp:"What is 0.25 moles?", note:"Method mark for correct substitution (6 \u00f7 24); final mark requires the correct answer with the unit \u201cmol\u201d stated."}
+  ]},
+  {cat:"Forces, Motion & Energy", qs:[
+    {pts:100, clue:"This is the name for a push or a pull acting on an object, measured in newtons.", resp:"What is a force?"},
+    {pts:200, clue:"This quantity is calculated by dividing the distance travelled by the time taken.", resp:"What is speed?"},
+    {pts:300, clue:"This is the energy store of an object due to its height above the ground.", resp:"What is gravitational potential energy?"},
+    {pts:400, clue:"This law states that the acceleration of an object is directly proportional to the resultant force acting on it, and inversely proportional to its mass.", resp:"What is Newton's second law?", note:"Full marks need both halves of the relationship \u2014 proportional to force and inversely proportional to mass \u2014 ideally supported by the equation F = ma. Stating only \u201cmore force, more acceleration\u201d is incomplete."},
+    {pts:500, clue:"Using F = ma, calculate the resultant force needed to accelerate a 0.5 kg trolley at 4 m/s\u00b2.", resp:"What is 2 newtons (N)?", note:"Method mark for correct substitution (0.5 \u00d7 4); final mark requires the correct value with the unit \u201cN.\u201d"}
+  ]},
+  {cat:"Waves, Electricity & Space", qs:[
+    {pts:100, clue:"This is the maximum displacement of a wave from its undisturbed, rest position.", resp:"What is amplitude?"},
+    {pts:200, clue:"This type of circuit provides only one single path for the current to flow around, so if one component fails, the whole circuit stops working.", resp:"What is a series circuit?"},
+    {pts:300, clue:"This is the term for light bouncing back off a surface, such as in a mirror.", resp:"What is reflection?"},
+    {pts:400, clue:"In this nuclear process, two light nuclei, such as hydrogen isotopes, join together to form a heavier nucleus, releasing enormous amounts of energy \u2014 it's what powers the Sun.", resp:"What is nuclear fusion?", note:"Students must distinguish this from fission \u2014 fusion joins light nuclei, fission splits a heavy nucleus. Both release energy, so naming the correct process is the key discriminator."},
+    {pts:500, clue:"A radioactive sample has an initial activity of 800 Bq and a half-life of 5 days. Calculate its activity after 15 days.", resp:"What is 100 Bq?", note:"Method mark for identifying that 15 \u00f7 5 = 3 half-lives have elapsed; then halving three times: 800 \u2192 400 \u2192 200 \u2192 100. Award the mark even if shown as repeated halving rather than a formula."}
+  ]}
+];
+const TEAM_KEYS=["A","B","C","D"];
+const TEAM_DEFAULT_NAMES=["Team Gold","Team Teal","Team Pink","Team Blue"];
+
+let teamCount=3;
+let teams=[]; // {name, key, score}
+let answered=[]; // 2D [catIdx][qIdx] boolean
+let current=null; // {c,r}
+
+/* ---- setup screen ---- */
+const teamCountRow=document.getElementById('teamCountRow');
+const teamFields=document.getElementById('teamFields');
+
+function renderTeamFields(){
+  teamFields.innerHTML='';
+  for(let i=0;i<teamCount;i++){
+    const key=TEAM_KEYS[i];
+    const div=document.createElement('div');
+    div.className='team-field';
+    div.innerHTML=`<label><span class="swatch" style="background:var(--team${key})"></span>${TEAM_DEFAULT_NAMES[i]}</label>
+      <input id="teamName${key}" maxlength="20" placeholder="${TEAM_DEFAULT_NAMES[i]}">`;
+    teamFields.appendChild(div);
+  }
+}
+renderTeamFields();
+
+teamCountRow.addEventListener('click',e=>{
+  const chip=e.target.closest('.chip');
+  if(!chip)return;
+  [...teamCountRow.children].forEach(c=>c.classList.remove('on'));
+  chip.classList.add('on');
+  teamCount=parseInt(chip.dataset.n,10);
+  renderTeamFields();
+});
+
+document.getElementById('startBtn').addEventListener('click',()=>{
+  teams=[];
+  for(let i=0;i<teamCount;i++){
+    const key=TEAM_KEYS[i];
+    const val=document.getElementById('teamName'+key).value.trim();
+    teams.push({name: val || TEAM_DEFAULT_NAMES[i], key, score:0});
+  }
+  answered=DATA.map(cat=>cat.qs.map(()=>false));
+  document.getElementById('setup').style.display='none';
+  document.getElementById('game').classList.add('on');
+  renderScorebar();
+  renderBoard();
+});
+
+/* ---- scorebar ---- */
+function renderScorebar(){
+  const bar=document.getElementById('scorebar');
+  bar.innerHTML='';
+  teams.forEach(t=>{
+    const card=document.createElement('div');
+    card.className='scard';
+    card.style.borderColor=`var(--team${t.key}-edge)`;
+    card.innerHTML=`<div class="who" style="color:var(--team${t.key})">${t.name}</div><div class="num" id="score${t.key}">${t.score}</div>`;
+    bar.appendChild(card);
+  });
+}
+function updateScorebar(){
+  teams.forEach(t=>{
+    const el=document.getElementById('score'+t.key);
+    if(el) el.textContent=t.score;
+  });
+}
+
+/* ---- board ---- */
+function renderBoard(){
+  const board=document.getElementById('board');
+  board.innerHTML='';
+  board.style.gridTemplateColumns=`repeat(${DATA.length}, 1fr)`;
+  DATA.forEach(cat=>{
+    const h=document.createElement('div');
+    h.className='cell cathead';
+    h.textContent=cat.cat;
+    board.appendChild(h);
+  });
+  for(let r=0;r<5;r++){
+    DATA.forEach((cat,c)=>{
+      const q=cat.qs[r];
+      const tile=document.createElement('div');
+      tile.className='cell tile';
+      tile.tabIndex=0;
+      tile.textContent=q.pts;
+      tile.dataset.c=c; tile.dataset.r=r;
+      if(answered[c][r]){
+        tile.classList.add('done');
+        tile.textContent='\u2713';
+        tile.tabIndex=-1;
+      }else{
+        tile.addEventListener('click',()=>openClue(c,r));
+        tile.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();openClue(c,r);} });
+      }
+      board.appendChild(tile);
+    });
+  }
+}
+
+/* ---- modal ---- */
+const backdrop=document.getElementById('backdrop');
+const mPoints=document.getElementById('mPoints');
+const mCat=document.getElementById('mCat');
+const mClue=document.getElementById('mClue');
+const mAns=document.getElementById('mAns');
+const mAnsVal=document.getElementById('mAnsVal');
+const mNote=document.getElementById('mNote');
+const mNoteVal=document.getElementById('mNoteVal');
+const revealBtn=document.getElementById('revealBtn');
+const awardRow=document.getElementById('awardRow');
+const skipBtn=document.getElementById('skipBtn');
+
+function openClue(c,r){
+  current={c,r};
+  const cat=DATA[c], q=cat.qs[r];
+  mPoints.textContent=q.pts;
+  mCat.textContent=cat.cat;
+  mClue.textContent=q.clue;
+  mAns.classList.remove('show');
+  mAnsVal.textContent=q.resp;
+  if(q.note){ mNoteVal.textContent=q.note; mNote.dataset.has='1'; } else { mNoteVal.textContent=''; mNote.dataset.has='0'; }
+  mNote.classList.remove('show');
+  revealBtn.style.display='';
+  revealBtn.textContent='Reveal answer';
+  awardRow.innerHTML='';
+  teams.forEach(t=>{
+    const b=document.createElement('button');
+    b.className='mbtn';
+    b.style.background=`var(--team${t.key})`;
+    b.style.color=`var(--team${t.key}-ink)`;
+    b.textContent=`+${q.pts} ${t.name}`;
+    b.addEventListener('click',()=>award(t.key,q.pts));
+    awardRow.appendChild(b);
+  });
+  backdrop.classList.add('on');
+}
+
+revealBtn.addEventListener('click',()=>{
+  mAns.classList.add('show');
+  if(mNote.dataset.has==='1') mNote.classList.add('show');
+});
+
+function award(key,pts){
+  const t=teams.find(t=>t.key===key);
+  if(t) t.score+=pts;
+  finishClue();
+}
+skipBtn.addEventListener('click',finishClue);
+
+function finishClue(){
+  if(current){
+    answered[current.c][current.r]=true;
+  }
+  backdrop.classList.remove('on');
+  current=null;
+  updateScorebar();
+  renderBoard();
+  if(answered.every(cat=>cat.every(v=>v))){
+    setTimeout(showFinal,350);
+  }
+}
+
+backdrop.addEventListener('click',e=>{ if(e.target===backdrop){ backdrop.classList.remove('on'); current=null; } });
+
+/* ---- controls ---- */
+document.getElementById('resetBtn').addEventListener('click',()=>{
+  if(!confirm('Reset the board and scores?'))return;
+  answered=DATA.map(cat=>cat.qs.map(()=>false));
+  teams.forEach(t=>t.score=0);
+  updateScorebar();
+  renderBoard();
+});
+document.getElementById('finalBtn').addEventListener('click',showFinal);
+document.getElementById('againBtn').addEventListener('click',()=>{
+  document.getElementById('win').classList.remove('on');
+});
+
+function showFinal(){
+  const box=document.getElementById('finalScores');
+  box.innerHTML='';
+  [...teams].sort((a,b)=>b.score-a.score).forEach(t=>{
+    const c=document.createElement('div');
+    c.className='fscard';
+    c.style.borderColor=`var(--team${t.key}-edge)`;
+    c.innerHTML=`<div class="who" style="color:var(--team${t.key})">${t.name}</div><div class="num">${t.score}</div>`;
+    box.appendChild(c);
+  });
+  document.getElementById('win').classList.add('on');
+}
+</script>
+</body>
+</html>

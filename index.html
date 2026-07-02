@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Classroom Games</title>
+<style>
+  :root{
+    --bg1:#0b3070; --bg2:#061f47; --bg3:#0a2456;
+    --yellow:#ffd21e; --amber:#ff9426;
+    --text:#eaf2ff; --muted:#9fb6df;
+    --panel:#0c2453; --panel-edge:#1c3f7e;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;min-height:100vh;color:var(--text);
+    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+    background:linear-gradient(180deg,var(--bg1) 0%, var(--bg2) 55%, var(--bg3) 100%);
+    padding:40px 16px 60px;display:flex;flex-direction:column;align-items:center;
+  }
+  h1{font-size:clamp(28px,5vw,44px);margin:0 0 6px;text-align:center;letter-spacing:.5px}
+  .sub{color:var(--muted);margin-bottom:36px;text-align:center;font-size:14px;letter-spacing:1px;text-transform:uppercase}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;width:100%;max-width:900px}
+  .card{
+    background:linear-gradient(180deg,var(--panel),#0a1f49);
+    border:1.5px solid var(--panel-edge);border-radius:14px;padding:22px 20px;
+    text-decoration:none;color:var(--text);transition:transform .15s ease,border-color .15s ease;
+  }
+  .card:hover{transform:translateY(-3px);border-color:var(--amber)}
+  .card .tag{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--amber);margin-bottom:8px}
+  .card h2{margin:0 0 6px;font-size:20px}
+  .card p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.4}
+</style>
+</head>
+<body>
+  <h1>Classroom Games</h1>
+  <div class="sub">Pick a game to play</div>
+  <div class="grid">
+    <a class="card" href="games/science-jeopardy.html">
+      <div class="tag">Quiz</div>
+      <h2>Science Jeopardy</h2>
+      <p>Board-style science quiz with categories and point values.</p>
+    </a>
+    <a class="card" href="games/science-blockbusters.html">
+      <div class="tag">Quiz</div>
+      <h2>Science Blockbusters</h2>
+      <p>Blockbusters-style hexagon board science quiz.</p>
+    </a>
+    <a class="card" href="games/tenable-science.html">
+      <div class="tag">Quiz</div>
+      <h2>Tenable Science</h2>
+      <p>Tenable-style science recall challenge.</p>
+    </a>
+    <a class="card" href="games/french-connect4.html">
+      <div class="tag">Language</div>
+      <h2>French Connect 4</h2>
+      <p>Connect 4 with French vocabulary questions.</p>
+    </a>
+    <a class="card" href="games/german-connect4.html">
+      <div class="tag">Language</div>
+      <h2>German Connect 4</h2>
+      <p>Connect 4 with German vocabulary questions.</p>
+    </a>
+  </div>
+</body>
+</html>
