@@ -423,10 +423,10 @@ let teamCount=3;
 let teams=[]; // {name, key, score}
 let answered=[]; // 2D [catIdx][qIdx] boolean
 let current=null; // {c,r}
-let board=[]; // 2D [catIdx][qIdx] -> randomly chosen question variant
+let qBoard=[]; // 2D [catIdx][qIdx] -> randomly chosen question variant
 
 function pickBoard(){
-  board=DATA.map(cat=>cat.qs.map(variants=>variants[Math.floor(Math.random()*variants.length)]));
+  qBoard=DATA.map(cat=>cat.qs.map(variants=>variants[Math.floor(Math.random()*variants.length)]));
 }
 
 /* ---- setup screen ---- */
@@ -502,7 +502,7 @@ function renderBoard(){
   });
   for(let r=0;r<5;r++){
     DATA.forEach((cat,c)=>{
-      const q=board[c][r];
+      const q=qBoard[c][r];
       const tile=document.createElement('div');
       tile.className='cell tile';
       tile.tabIndex=0;
@@ -536,7 +536,7 @@ const skipBtn=document.getElementById('skipBtn');
 
 function openClue(c,r){
   current={c,r};
-  const cat=DATA[c], q=board[c][r];
+  const cat=DATA[c], q=qBoard[c][r];
   mPoints.textContent=q.pts;
   mCat.textContent=cat.cat;
   mClue.textContent=q.clue;
