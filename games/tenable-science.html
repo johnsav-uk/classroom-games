@@ -245,6 +245,23 @@ body::before {
   box-shadow: 0 0 15px rgba(0,255,136,0.3);
 }
 
+.reset-btn {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border: 1px solid #aa00ff;
+  background: transparent;
+  color: #aa00ff;
+  cursor: pointer;
+  padding: 4px 10px;
+  transition: all 0.2s;
+}
+.reset-btn:hover {
+  background: rgba(170,0,255,0.15);
+  color: #fff;
+}
+
 /* --- Custom Game mode --- */
 .q-input {
   width: 100%;
@@ -698,6 +715,15 @@ body::before {
         <div class="question-cards" id="question-cards"></div>
 
         <button class="random-btn" onclick="selectRandom()">🎲 Pick a Random Question</button>
+
+        <div id="bank-preview" style="display:none;margin-top:1.2rem">
+          <div class="bank-section-label" style="display:flex;align-items:center;justify-content:space-between">
+            <span>Host preview — check the answers, edit anything, then start</span>
+            <button type="button" class="reset-btn" onclick="resetBankPreview()">↺ Reset</button>
+          </div>
+          <textarea class="q-input" id="bank-question-input" rows="2"></textarea>
+          <div class="answers-grid" id="bank-answers-grid"></div>
+        </div>
       </div>
     </div>
 
@@ -871,6 +897,36 @@ const QUESTION_DATA = [
     question: 'Name 10 methods of contraception.',
     answers: ['Condom','Diaphragm','Contraceptive pill','Implant','Injection','Patch','IUD','Spermicide','Sterilisation','Abstinence']
   },
+  {
+    subject: 'Biology', topic: 'Parts of a Leaf', level: 'KS3', difficulty: 'Medium',
+    question: 'Name 10 parts of a leaf.',
+    answers: ['Cuticle','Upper epidermis','Palisade mesophyll','Spongy mesophyll','Guard cell','Stoma','Lower epidermis','Xylem','Phloem','Midrib']
+  },
+  {
+    subject: 'Biology', topic: 'The Nervous System', level: 'GCSE', difficulty: 'Medium',
+    question: 'Name 10 parts or terms in the human nervous system.',
+    answers: ['Dendrite','Cell body','Axon','Myelin sheath','Axon terminal','Synapse','Receptor','Effector','Neurotransmitter','Reflex arc']
+  },
+  {
+    subject: 'Biology', topic: 'Parts of the Eye', level: 'GCSE', difficulty: 'Medium',
+    question: 'Name 10 parts of the human eye.',
+    answers: ['Cornea','Iris','Pupil','Lens','Retina','Optic nerve','Sclera','Ciliary muscles','Suspensory ligaments','Vitreous humour']
+  },
+  {
+    subject: 'Biology', topic: 'The Heart', level: 'GCSE', difficulty: 'Medium',
+    question: 'Name 10 parts of the human heart.',
+    answers: ['Right atrium','Left atrium','Right ventricle','Left ventricle','Aorta','Vena cava','Pulmonary artery','Pulmonary vein','Valves','Septum']
+  },
+  {
+    subject: 'Biology', topic: 'Diseases and Pathogens', level: 'GCSE', difficulty: 'Hard',
+    question: 'Name 10 diseases or pathogens studied at GCSE.',
+    answers: ['Measles','Chickenpox','Influenza','HIV','Salmonella','Cholera','Malaria','Tuberculosis','MRSA','Norovirus']
+  },
+  {
+    subject: 'Biology', topic: 'Ecology: Environmental Factors', level: 'KS3', difficulty: 'Medium',
+    question: 'Name 10 environmental factors that can affect where organisms live.',
+    answers: ['Temperature','Light intensity','Water availability','Soil pH','Wind','Oxygen availability','Predation','Competition','Disease','Food availability']
+  },
 
   /* ---------------- CHEMISTRY ---------------- */
   {
@@ -891,12 +947,32 @@ const QUESTION_DATA = [
   {
     subject: 'Chemistry', topic: 'Reactivity Series', level: 'GCSE', difficulty: 'Hard', ordered: true,
     question: 'Name the 10 metals of the reactivity series (most reactive first).',
-    answers: ['Potassium','Sodium','Lithium','Calcium','Magnesium','Aluminium','Zinc','Iron','Copper','Gold']
+    answers: ['Potassium','Sodium','Lithium','Calcium','Magnesium','Zinc','Iron','Copper','Silver','Gold']
   },
   {
     subject: 'Chemistry', topic: 'First 10 Alkanes', level: 'GCSE', difficulty: 'Hard', ordered: true,
     question: 'Name the first 10 alkanes (in order, smallest first).',
     answers: ['Methane','Ethane','Propane','Butane','Pentane','Hexane','Heptane','Octane','Nonane','Decane']
+  },
+  {
+    subject: 'Chemistry', topic: 'Types of Chemical Reaction', level: 'GCSE', difficulty: 'Medium',
+    question: 'Name 10 types of chemical reaction.',
+    answers: ['Combustion','Oxidation','Reduction','Neutralisation','Precipitation','Thermal decomposition','Electrolysis','Polymerisation','Fermentation','Displacement']
+  },
+  {
+    subject: 'Chemistry', topic: 'Elements 11-20', level: 'GCSE', difficulty: 'Medium', ordered: true,
+    question: 'Name elements 11 to 20 of the periodic table (in order of atomic number).',
+    answers: ['Sodium','Magnesium','Aluminium','Silicon','Phosphorus','Sulfur','Chlorine','Argon','Potassium','Calcium']
+  },
+  {
+    subject: 'Chemistry', topic: 'Element Symbols 1-10', level: 'Both', difficulty: 'Easy', ordered: true,
+    question: 'Name the chemical symbols of the first 10 elements (in order of atomic number).',
+    answers: ['H','He','Li','Be','B','C','N','O','F','Ne']
+  },
+  {
+    subject: 'Chemistry', topic: 'Common Acids and Alkalis', level: 'KS3', difficulty: 'Easy',
+    question: 'Name 10 common acids or alkalis.',
+    answers: ['Hydrochloric acid','Sulfuric acid','Nitric acid','Citric acid','Ethanoic acid','Sodium hydroxide','Potassium hydroxide','Ammonia','Calcium hydroxide','Magnesium hydroxide']
   },
 
   /* ---------------- PHYSICS ---------------- */
@@ -924,6 +1000,26 @@ const QUESTION_DATA = [
     subject: 'Physics', topic: 'Units of Measurement', level: 'GCSE', difficulty: 'Medium',
     question: 'Name 10 units of measurement used in physics.',
     answers: ['Metre','Kilogram','Second','Newton','Joule','Watt','Volt','Ohm','Ampere','Pascal']
+  },
+  {
+    subject: 'Physics', topic: 'Famous Scientists', level: 'KS3', difficulty: 'Easy',
+    question: 'Name 10 famous scientists.',
+    answers: ['Isaac Newton','Albert Einstein','Marie Curie','Niels Bohr','Ernest Rutherford','Michael Faraday','Stephen Hawking','Rosalind Franklin','James Clerk Maxwell','Galileo Galilei']
+  },
+  {
+    subject: 'Physics', topic: 'Forms of Energy', level: 'KS3', difficulty: 'Easy',
+    question: 'Name 10 forms of energy.',
+    answers: ['Kinetic energy','Gravitational potential energy','Elastic potential energy','Chemical energy','Thermal energy','Electrical energy','Sound energy','Light energy','Nuclear energy','Magnetic energy']
+  },
+  {
+    subject: 'Physics', topic: 'Wave Properties and Behaviours', level: 'GCSE', difficulty: 'Medium',
+    question: 'Name 10 properties or behaviours of waves.',
+    answers: ['Amplitude','Wavelength','Frequency','Period','Speed','Trough','Crest','Reflection','Refraction','Diffraction']
+  },
+  {
+    subject: 'Physics', topic: 'Electromagnetic Devices', level: 'GCSE', difficulty: 'Medium',
+    question: 'Name 10 devices that make use of electromagnetism.',
+    answers: ['Electric motor','Generator','Loudspeaker','Transformer','Relay','Electric bell','Circuit breaker','Microphone','Solenoid','Electromagnet']
   },
 ];
 
@@ -1098,6 +1194,39 @@ function buildSetupInputs() {
 }
 
 /* ----------------------------------------------------------------
+   BANK MODE — HOST PREVIEW / EDIT
+   Once a bank question is selected, the host sees the actual question
+   text and all 10 answers up front (in the same editable inputs used
+   by Custom Game) so they can spot-check or tweak anything before the
+   round starts, rather than only discovering the answers mid-game.
+   ---------------------------------------------------------------- */
+function buildBankPreviewInputs() {
+  const grid = $('bank-answers-grid');
+  grid.innerHTML = '';
+  for (let i = 1; i <= 10; i++) {
+    const row = document.createElement('div');
+    row.className = 'ans-row';
+    row.innerHTML = `
+      <span class="ans-num">${i}</span>
+      <input class="ans-input" id="bank-a${i}" placeholder="Answer ${i}…" autocomplete="off" />`;
+    grid.appendChild(row);
+  }
+}
+
+/** Fill the preview/edit fields from a bank question and reveal the panel. */
+function populateBankPreview(q) {
+  $('bank-question-input').value = q.question;
+  for (let i = 1; i <= 10; i++) $('bank-a' + i).value = q.answers[i - 1] ?? '';
+  $('bank-preview').style.display = 'block';
+}
+
+/** Discard any edits and reload the currently selected question's original text. */
+function resetBankPreview() {
+  const q = QuestionBank.getSelected();
+  if (q) populateBankPreview(q);
+}
+
+/* ----------------------------------------------------------------
    QUESTION BANK — UI RENDERING
    ---------------------------------------------------------------- */
 function renderBankUI() {
@@ -1136,6 +1265,7 @@ function renderBankUI() {
       QuestionBank.selectByIndex(i);
       document.querySelectorAll('.q-card').forEach(c => c.classList.remove('selected'));
       card.classList.add('selected');
+      populateBankPreview(q);
       updateStartBtn();
     });
     container.appendChild(card);
@@ -1157,6 +1287,7 @@ function setFilter(dimension, value) {
   QuestionBank.setFilter(dimension, value);
   renderBankUI();
   updateStartBtn();
+  if (!QuestionBank.getSelected()) $('bank-preview').style.display = 'none';
 }
 
 /** Pick a random question from the current filtered set, then highlight it. */
@@ -1164,6 +1295,7 @@ function selectRandom() {
   const q = QuestionBank.pickRandom();
   if (!q) return;
   renderBankUI();           // re-render highlights the selected card by identity
+  populateBankPreview(q);
   updateStartBtn();
   // Scroll the newly-selected card into view
   const cards = document.querySelectorAll('.q-card');
@@ -1176,12 +1308,21 @@ function selectRandom() {
    ---------------------------------------------------------------- */
 function startGame() {
   if (currentMode === 'bank') {
-    // Load data from the question bank
+    // Load data from the question bank, but via the host's editable preview
+    // fields — so any last-minute correction the host makes actually takes effect.
     const q = QuestionBank.getSelected();
     if (!q) { alert('Please select a question first.'); return; }
+    const questionText = $('bank-question-input').value.trim();
+    if (!questionText) { alert('Please enter a question.'); return; }
+    const answers = [];
+    for (let i = 1; i <= 10; i++) {
+      const v = $('bank-a' + i)?.value?.trim();
+      if (!v) { alert(`Please enter answer #${i}.`); return; }
+      answers.push(v);
+    }
     GameState.init({
-      question:   q.question,
-      answers:    q.answers,
+      question:   questionText,
+      answers,
       topic:      q.subject + ' · ' + q.topic,
       level:      q.level,
       difficulty: q.difficulty,
@@ -1484,6 +1625,7 @@ function returnToSetup() {
    INITIALISE
    ---------------------------------------------------------------- */
 buildSetupInputs(); // Build the 10 custom answer inputs on load
+buildBankPreviewInputs(); // Build the 10 host-preview/edit inputs for Bank mode
 
 // The question bank is embedded, so no fetch is needed — render immediately.
 $('bank-loading').style.display = 'none';
