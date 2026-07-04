@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Who Dares Wins — Science Edition</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --stage1:#3a0906; --stage2:#1a0402; --stage3:#0c0100;
+  --yellow:#f0c246; --yellow-edge:#8a5a12; --yellow-glow:rgba(240,194,70,.5);
+  --ink:#1f0e02;
+  --amber:#ff7a26;
+  --text:#fff3d6; --muted:#d1a875;
+  --panel:#3d0b06; --panel-edge:#7a2012;
+  --display:'Archivo Black','Arial Black',system-ui,sans-serif;
+  --body:'Space Grotesk',system-ui,-apple-system,'Segoe UI',sans-serif;
+
+  --teamA:#f0c246; --teamA-edge:#8a5a12; --teamA-ink:#1f0e02;
+  --teamB:#e0341f; --teamB-edge:#7a0f0a; --teamB-ink:#fff3d6;
+  --good:#f0c246; --good-edge:#8a5a12;
+  --bad:#ff3b30; --bad-edge:#7a0000;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;min-height:100vh;color:var(--text);
+  font-family:var(--body);
+  background:
+    radial-gradient(120% 80% at 50% -10%, rgba(255,140,40,.18), transparent 60%),
+    radial-gradient(90% 70% at 50% 120%, rgba(0,0,0,.55), transparent 55%),
+    linear-gradient(180deg,var(--stage1) 0%, var(--stage2) 55%, var(--stage3) 100%);
+  padding:20px 14px 48px;display:flex;flex-direction:column;align-items:center;
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:repeating-linear-gradient(0deg, rgba(255,255,255,.02) 0 1px, transparent 1px 3px);
+  mix-blend-mode:overlay;opacity:.5;
+}
+.wrap{position:relative;z-index:1;width:100%;max-width:820px;display:flex;flex-direction:column;align-items:center}
+
+.screen{display:none;width:100%;flex-direction:column;align-items:center}
+.screen.active{display:flex}
+
+/* ---- title ---- */
+.titlebar{text-align:center;margin-bottom:18px;padding:26px 34px;border-radius:10px;position:relative;width:100%;
+  overflow:hidden;
+  background:radial-gradient(70% 140% at 50% 50%, #8a1a08 0%, #3d0705 55%, #150200 100%);
+  box-shadow:0 14px 40px rgba(0,0,0,.5), inset 0 0 0 2px rgba(240,194,70,.25);
+  border:2px solid var(--yellow-edge);
+}
+.titlebar::before{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.9;
+  background:
+    radial-gradient(2px 2px at 15% 25%, rgba(255,190,80,.9), transparent),
+    radial-gradient(2px 2px at 80% 20%, rgba(255,150,50,.8), transparent),
+    radial-gradient(3px 3px at 60% 75%, rgba(255,170,60,.7), transparent),
+    radial-gradient(2px 2px at 30% 80%, rgba(255,150,50,.6), transparent),
+    radial-gradient(2px 2px at 90% 60%, rgba(255,190,80,.6), transparent),
+    radial-gradient(2px 2px at 45% 15%, rgba(255,150,50,.7), transparent);
+}
+.titlebar h1{
+  font-family:var(--display);font-size:clamp(28px,6vw,48px);margin:0;line-height:1;
+  color:var(--yellow);position:relative;display:inline-block;transform:skewX(-6deg);
+  text-shadow:0 0 1px #000, 3px 3px 0 var(--yellow-edge), 0 0 26px var(--yellow-glow), 0 0 46px rgba(255,90,20,.55);
+  letter-spacing:1px;
+}
+.titlebar .sub{
+  margin-top:10px;font-size:12.5px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);
+  font-weight:500;position:relative;
+}
+
+/* ---- setup ---- */
+.setup{
+  width:100%;background:linear-gradient(180deg,var(--panel),#210503);
+  border:2px solid var(--panel-edge);border-radius:10px;padding:24px;
+  box-shadow:0 18px 50px rgba(0,0,0,.45);
+}
+.setup .step{font-family:var(--display);font-size:13px;letter-spacing:.5px;color:var(--amber);text-transform:uppercase;margin:0 0 12px}
+.setup .step:not(:first-child){margin-top:22px}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.chip{
+  background:#210503;border:2px solid var(--panel-edge);color:var(--text);
+  padding:10px 18px;border-radius:4px;cursor:pointer;font:500 14px var(--body);
+  transition:transform .12s ease,border-color .15s ease,background .15s ease;user-select:none;
+}
+.chip:hover{border-color:var(--amber);transform:translateY(-1px)}
+.chip.on{background:var(--yellow);border-color:var(--yellow-edge);color:var(--ink);font-weight:700;box-shadow:0 0 16px rgba(240,194,70,.4)}
+.note{font-size:12px;color:var(--muted);margin-top:10px}
+.teams{display:flex;gap:14px;flex-wrap:wrap;margin-top:4px}
+.team-field{flex:1;min-width:230px}
+.team-field label{display:flex;align-items:center;gap:7px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
+.team-field input{
+  width:100%;background:#210503;border:2px solid var(--panel-edge);border-radius:4px;
+  color:var(--text);padding:11px 13px;font:500 15px var(--body);
+}
+.team-field.a input:focus{outline:none;border-color:var(--teamA)}
+.team-field.b input:focus{outline:none;border-color:var(--teamB)}
+.swatch{display:inline-block;width:11px;height:11px;border-radius:2px;vertical-align:middle;border:1px solid rgba(255,255,255,.35)}
+.swatch.a{background:var(--teamA)} .swatch.b{background:var(--teamB)}
+.start{
+  width:100%;margin-top:22px;padding:15px;border:2px solid var(--yellow-edge);border-radius:6px;cursor:pointer;
+  font-family:var(--display);font-size:17px;letter-spacing:1px;color:var(--ink);
+  background:linear-gradient(180deg,#ffdc73,var(--yellow));
+  box-shadow:0 0 24px var(--yellow-glow), inset 0 -3px 0 var(--yellow-edge);
+}
+.start:hover{filter:brightness(1.05)}
+
+/* ---- rules blurb ---- */
+.rules{
+  width:100%;background:rgba(35,6,4,.7);border:1px solid var(--panel-edge);border-radius:8px;
+  padding:16px 18px;margin-bottom:16px;font-size:13px;line-height:1.6;color:var(--muted);
+}
+.rules b{color:var(--text)}
+.rules summary{cursor:pointer;font-family:var(--display);font-size:12px;letter-spacing:1px;color:var(--amber);text-transform:uppercase}
+
+/* ---- scoreboard ---- */
+.scorebar{display:flex;justify-content:center;gap:16px;width:100%;margin-bottom:14px}
+.scard{
+  flex:1;background:linear-gradient(180deg,var(--panel),#210503);border-radius:8px;padding:14px 16px;
+  border:2px solid var(--panel-edge);text-align:center;transition:transform .2s,box-shadow .2s,border-color .2s;
+  position:relative;overflow:hidden;
+}
+.scard.a{border-color:var(--teamA-edge)}
+.scard.b{border-color:var(--teamB-edge)}
+.scard .who{font-family:var(--display);font-size:15px;letter-spacing:.5px;margin-bottom:4px}
+.scard.a .who{color:var(--teamA)} .scard.b .who{color:#ff7a5c}
+.scard .dir{font-size:9.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.scard .num{font-family:var(--display);font-size:30px;line-height:1;color:var(--text)}
+.scard.turn{transform:translateY(-3px)}
+.scard.a.turn{box-shadow:0 0 22px rgba(240,194,70,.4)}
+.scard.b.turn{box-shadow:0 0 22px rgba(224,52,31,.5)}
+.turnflag{position:absolute;top:0;left:0;right:0;height:4px;background:var(--amber);opacity:0;transition:opacity .2s}
+.scard.turn .turnflag{opacity:1}
+
+.round-flag{
+  font-family:var(--display);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);
+  text-align:center;margin-bottom:10px;
+}
+.round-flag b{color:var(--amber)}
+
+/* ---- category card ---- */
+.catcard{
+  width:100%;background:linear-gradient(180deg,var(--panel),#210503);border:2px solid var(--panel-edge);
+  border-radius:10px;padding:22px 24px;text-align:center;margin-bottom:16px;
+  box-shadow:0 12px 30px rgba(0,0,0,.4);
+}
+.catcard .label{font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.catcard .topic{font-family:var(--display);font-size:clamp(18px,3.6vw,26px);color:var(--yellow);line-height:1.3;
+  text-shadow:0 0 16px var(--yellow-glow)}
+.catcard .badges{margin-top:10px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.badge{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 10px;border-radius:4px;
+  border:1px solid var(--panel-edge);color:var(--muted)}
+
+/* ---- bidding panel ---- */
+.bid-status{
+  width:100%;text-align:center;margin-bottom:14px;padding:16px;border-radius:8px;
+  background:rgba(35,6,4,.7);border:1px solid var(--panel-edge);
+}
+.bid-num{font-family:var(--display);font-size:42px;color:var(--yellow);line-height:1}
+.bid-holder{font-size:12px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:4px}
+.bid-turn{font-family:var(--display);font-size:15px;margin-top:10px;letter-spacing:.5px}
+
+.bid-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;width:100%;margin-bottom:10px}
+.bbtn{
+  padding:16px 26px;border:none;border-radius:4px;cursor:pointer;font-family:var(--display);
+  font-size:15px;letter-spacing:.5px;color:#fff;transition:transform .1s ease, filter .15s ease;
+  box-shadow:0 5px 0 rgba(0,0,0,.35);
+}
+.bbtn:hover{filter:brightness(1.08)}
+.bbtn:active{transform:translateY(3px);box-shadow:none}
+.bbtn.raise{background:linear-gradient(180deg,#d9a940,#8a5a12);color:var(--ink)}
+.bbtn.dare{background:linear-gradient(180deg,var(--bad),var(--bad-edge))}
+.bbtn:disabled{opacity:.35;cursor:not-allowed;filter:none}
+
+/* ---- answering panel ---- */
+.answer-target{
+  width:100%;text-align:center;margin-bottom:14px;padding:18px;border-radius:8px;
+  background:rgba(35,6,4,.7);border:2px solid var(--amber);
+}
+.answer-target .who{font-family:var(--display);font-size:14px;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
+
+/* ---- climbing ladder (used by list rounds, tiebreak and the money round) ---- */
+.ladder-wrap{
+  width:100%;display:flex;flex-direction:column-reverse;gap:6px;margin-bottom:14px;
+  max-height:420px;overflow-y:auto;padding-right:2px;
+}
+.ladder-cell{
+  min-height:40px;border-radius:4px;border:2px solid var(--panel-edge);background:#210503;
+  display:flex;align-items:center;justify-content:center;gap:8px;flex-shrink:0;
+  font-family:var(--display);font-size:13px;color:var(--muted);padding:4px 12px;text-align:center;
+  transition:background .2s ease, border-color .2s ease, color .2s ease;
+}
+.ladder-cell.filled{
+  background:linear-gradient(180deg,#f5d576,var(--yellow));border-color:var(--yellow-edge);color:var(--ink);
+  box-shadow:0 0 14px var(--yellow-glow);
+}
+.ladder-cell.filled.teamB{background:linear-gradient(180deg,#ff7a5c,var(--teamB));border-color:var(--teamB-edge);color:#fff;box-shadow:0 0 14px rgba(224,52,31,.5)}
+.ladder-cell.milestone:not(.filled){border-style:dashed;border-color:var(--yellow-edge)}
+.ladder-cell .rung-prize{font-size:10.5px;letter-spacing:.5px;color:var(--yellow);font-weight:700}
+.ladder-cell.filled .rung-prize{color:var(--ink)}
+.ladder-wrap.flash-wrong .ladder-cell{background:var(--bad)!important;border-color:var(--bad-edge)!important;color:#fff!important}
+.ladder-wrap.flash-wrong{animation:ladderShake .4s ease}
+@keyframes ladderShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+
+.answer-input-row{display:flex;gap:10px;width:100%;margin-bottom:14px}
+.answer-input-row input{
+  flex:1;min-width:0;background:#210503;border:2px solid var(--panel-edge);border-radius:4px;color:var(--text);
+  padding:14px 16px;font:600 15px var(--body);
+}
+.answer-input-row input:focus{outline:none;border-color:var(--amber)}
+.answer-input-row button{
+  padding:14px 24px;border:none;border-radius:4px;cursor:pointer;font-family:var(--display);
+  font-size:14px;letter-spacing:.5px;color:var(--ink);background:linear-gradient(180deg,#ffdc73,var(--yellow));
+  box-shadow:0 4px 0 var(--yellow-edge);white-space:nowrap;transition:transform .1s ease;
+}
+.answer-input-row button:hover{filter:brightness(1.05)}
+.answer-input-row button:active{transform:translateY(3px);box-shadow:none}
+
+.answer-key{width:100%;margin-bottom:10px}
+.answer-key summary{
+  cursor:pointer;font:700 12px var(--display);letter-spacing:1px;text-transform:uppercase;color:var(--amber);
+  padding:10px 14px;background:rgba(35,6,4,.6);border:1px dashed var(--panel-edge);border-radius:4px;
+}
+.answer-key .list{
+  margin-top:8px;padding:14px 18px;background:#210503;border-radius:4px;border:1px solid var(--panel-edge);
+  columns:2;column-gap:24px;font-size:13.5px;line-height:1.9;color:var(--text);
+}
+.answer-key .warn{font-size:11px;color:var(--bad);margin-top:8px;text-transform:uppercase;letter-spacing:.5px;font-weight:700}
+
+/* ---- result banner ---- */
+.result-banner{
+  width:100%;text-align:center;padding:22px;border-radius:8px;margin-bottom:16px;
+  font-family:var(--display);font-size:clamp(18px,4vw,26px);
+}
+.result-banner.win{background:linear-gradient(180deg,rgba(240,194,70,.22),rgba(240,194,70,.06));border:2px solid var(--yellow);color:#ffe9b0}
+.result-banner.lose{background:linear-gradient(180deg,rgba(255,59,48,.22),rgba(255,59,48,.06));border:2px solid var(--bad);color:#ffb3ac}
+.result-banner .sub{font-family:var(--body);font-size:13px;color:var(--muted);margin-top:6px;letter-spacing:.5px}
+
+/* ---- reveal board: all accepted answers, tiles opening like blinds ---- */
+.reveal-heading{
+  width:100%;text-align:center;font-family:var(--display);font-size:12px;letter-spacing:2px;
+  text-transform:uppercase;color:var(--muted);margin-bottom:8px;
+}
+.reveal-board{width:100%;perspective:700px;columns:1;column-gap:10px;margin-bottom:18px}
+@media (min-width:480px){ .reveal-board{columns:2} }
+@media (min-width:680px){ .reveal-board{columns:3} }
+.reveal-tile{
+  break-inside:avoid;margin-bottom:10px;transform-origin:top;backface-visibility:hidden;
+  background:linear-gradient(180deg,#f5d576,var(--yellow));border:2px solid var(--yellow-edge);
+  border-radius:4px;padding:9px 12px;color:var(--ink);font-family:var(--display);font-size:12.5px;
+  text-align:center;box-shadow:0 3px 0 var(--yellow-edge);
+  transform:rotateX(-100deg);opacity:0;
+  animation:revealBlind .4s ease forwards;
+}
+@keyframes revealBlind{
+  0%{transform:rotateX(-100deg);opacity:0}
+  100%{transform:rotateX(0deg);opacity:1}
+}
+
+.ctrl{
+  background:linear-gradient(180deg,#ffdc73,var(--yellow));color:var(--ink);border:2px solid var(--yellow-edge);border-radius:6px;
+  padding:13px 28px;font-family:var(--display);font-size:14px;letter-spacing:1px;cursor:pointer;
+  box-shadow:0 0 18px var(--yellow-glow);
+}
+.ctrl:hover{filter:brightness(1.05)}
+.ctrl.ghost{background:transparent;border:1.5px solid var(--panel-edge);color:var(--muted);box-shadow:none}
+.ctrl.ghost:hover{border-color:var(--amber);color:var(--text)}
+
+/* ---- money round ---- */
+.bank-prompt{
+  width:100%;text-align:center;padding:22px;border-radius:8px;margin-bottom:16px;
+  background:linear-gradient(180deg,rgba(240,194,70,.18),rgba(240,194,70,.05));border:2px solid var(--yellow);
+}
+.bank-prompt .amt{font-family:var(--display);font-size:clamp(26px,6vw,40px);color:var(--yellow);text-shadow:0 0 20px var(--yellow-glow)}
+.bank-prompt .q{font-size:13px;color:var(--muted);margin:8px 0 16px;letter-spacing:.5px}
+.bank-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.bankbtn{padding:16px 26px;border:none;border-radius:4px;cursor:pointer;font-family:var(--display);
+  font-size:14px;letter-spacing:.5px;box-shadow:0 5px 0 rgba(0,0,0,.35);}
+.bankbtn:hover{filter:brightness(1.08)}
+.bankbtn:active{transform:translateY(3px);box-shadow:none}
+.bankbtn.stop{background:linear-gradient(180deg,#ffdc73,var(--yellow));color:var(--ink)}
+.bankbtn.push{background:linear-gradient(180deg,var(--bad),var(--bad-edge));color:#fff}
+
+/* ---- end screen ---- */
+.end-card{
+  width:100%;text-align:center;padding:36px 24px;border-radius:10px;
+  background:linear-gradient(180deg,var(--panel),#210503);border:2px solid var(--yellow-edge);
+  box-shadow:0 20px 50px rgba(0,0,0,.5);margin-bottom:18px;
+}
+.end-card h2{font-family:var(--display);font-size:clamp(26px,6vw,40px);color:var(--yellow);margin:0 0 10px;
+  text-shadow:0 0 24px var(--yellow-glow)}
+.end-card .amt{font-family:var(--display);font-size:clamp(22px,5vw,32px);color:#ffe9b0;margin-top:6px}
+.end-card p{color:var(--muted);font-size:13.5px;margin-top:6px}
+.end-buttons{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+
+@media (max-width:560px){
+  .scard .num{font-size:24px}
+  .bbtn{padding:14px 16px;font-size:13px}
+  .answer-input-row button{padding:14px 16px;font-size:13px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="titlebar">
+    <h1>WHO DARES WINS</h1>
+    <div class="sub">Science Edition — bid, dare, and bank the winnings</div>
+  </div>
+
+  <!-- ===================== SETUP SCREEN ===================== -->
+  <div class="screen active" id="screen-setup">
+    <div class="setup">
+      <p class="step">1 — Subjects</p>
+      <div class="row" id="subjRow">
+        <div class="chip on" data-subj="Biology">Biology</div>
+        <div class="chip on" data-subj="Chemistry">Chemistry</div>
+        <div class="chip on" data-subj="Physics">Physics</div>
+      </div>
+
+      <p class="step">2 — Key stage</p>
+      <div class="row" id="levelRow">
+        <div class="chip on" data-lvl="All">All</div>
+        <div class="chip" data-lvl="KS3">KS3</div>
+        <div class="chip" data-lvl="GCSE">GCSE</div>
+      </div>
+      <div class="note" id="poolNote"></div>
+
+      <p class="step">3 — Team names</p>
+      <div class="teams">
+        <div class="team-field a">
+          <label><span class="swatch a"></span>Team A</label>
+          <input id="teamAInput" maxlength="22" placeholder="e.g. Team Atom">
+        </div>
+        <div class="team-field b">
+          <label><span class="swatch b"></span>Team B</label>
+          <input id="teamBInput" maxlength="22" placeholder="e.g. Team Neutron">
+        </div>
+      </div>
+
+      <button class="start" onclick="startMatch()">▶ START THE GAME</button>
+    </div>
+
+    <details class="rules" style="margin-top:16px">
+      <summary>How to play (host notes)</summary>
+      <p style="margin-top:10px">
+        Each round a science category is announced. Teams alternate turns, either <b>raising the bid</b>
+        (claiming they can name one more correct item than the current bid) or <b>daring</b> their opponents
+        to play at the standing bid. Whoever is dared must then name that many correct, non-repeated answers
+        in a row — succeed and they win the list; slip up once and the other team takes it.
+      </p>
+      <p style="margin-top:8px">
+        First team to win <b>2 lists</b> becomes champion and moves on to the <b>Money Round</b>, naming as many
+        answers as possible from a fresh category (up to 15), banking winnings every 3 correct — but risking it
+        all if they push their luck too far. A 1–1 split is settled with a sudden-death tiebreaker list.
+      </p>
+      <p style="margin-top:8px">
+        As each team calls out an answer, you (the host) type it into the box. Correct answers climb the ladder
+        from the bottom up; one wrong, repeated, or stuck answer flashes the ladder red and ends the round
+        instantly. You can peek at the hidden answer key on your own screen if you need to check a spelling —
+        just keep it out of view of the teams.
+      </p>
+    </details>
+  </div>
+
+  <!-- ===================== MAIN GAME SCREEN ===================== -->
+  <div class="screen" id="screen-game">
+    <div class="round-flag" id="roundFlag"></div>
+
+    <div class="scorebar">
+      <div class="scard a" id="scardA">
+        <div class="turnflag"></div>
+        <div class="who" id="scNameA"></div>
+        <div class="dir">Lists won</div>
+        <div class="num" id="scNumA">0</div>
+      </div>
+      <div class="scard b" id="scardB">
+        <div class="turnflag"></div>
+        <div class="who" id="scNameB"></div>
+        <div class="dir">Lists won</div>
+        <div class="num" id="scNumB">0</div>
+      </div>
+    </div>
+
+    <div class="catcard">
+      <div class="label" id="catLabelText">Category</div>
+      <div class="topic" id="catTopic"></div>
+      <div class="badges" id="catBadges"></div>
+    </div>
+
+    <!-- BIDDING PANEL -->
+    <div id="panelBidding">
+      <div class="bid-status">
+        <div class="bid-num" id="bidNum">0</div>
+        <div class="bid-holder" id="bidHolder">No bid yet</div>
+        <div class="bid-turn" id="bidTurn"></div>
+      </div>
+      <div class="bid-actions">
+        <button class="bbtn raise" id="btnRaise" onclick="raiseBid()"></button>
+        <button class="bbtn dare" id="btnDare" onclick="dareOpponent()"></button>
+      </div>
+    </div>
+
+    <!-- ANSWERING PANEL -->
+    <div id="panelAnswering" style="display:none;width:100%">
+      <div class="answer-target">
+        <div class="who" id="answerWho"></div>
+      </div>
+      <div class="ladder-wrap" id="answerLadder"></div>
+      <div class="answer-input-row">
+        <input id="answerInput" placeholder="Type the answer given out loud…" autocomplete="off" spellcheck="false">
+        <button onclick="submitListAnswer()">Submit</button>
+      </div>
+      <details class="answer-key">
+        <summary>📋 Reveal accepted answers (host only — keep hidden from teams)</summary>
+        <div class="list" id="answerKeyList"></div>
+        <div class="warn">Don't let students see this panel!</div>
+      </details>
+    </div>
+
+    <!-- TIEBREAK PANEL -->
+    <div id="panelTiebreak" style="display:none;width:100%">
+      <div class="answer-target">
+        <div class="who" id="tbWho"></div>
+        <div class="sub" style="font-size:12px;color:var(--muted);margin-top:6px">Sudden death — first mistake loses the match</div>
+      </div>
+      <div class="ladder-wrap" id="tbLadder"></div>
+      <div class="answer-input-row">
+        <input id="tbInput" placeholder="Type the answer given out loud…" autocomplete="off" spellcheck="false">
+        <button onclick="submitTiebreakAnswer()">Submit</button>
+      </div>
+      <details class="answer-key">
+        <summary>📋 Reveal accepted answers (host only — keep hidden from teams)</summary>
+        <div class="list" id="tbKeyList"></div>
+        <div class="warn">Don't let students see this panel!</div>
+      </details>
+    </div>
+
+    <!-- LIST RESULT BANNER -->
+    <div id="panelListResult" style="display:none;width:100%">
+      <div class="result-banner" id="listResultBanner">
+        <div id="listResultText"></div>
+        <div class="sub" id="listResultSub"></div>
+      </div>
+      <div class="reveal-heading">All accepted answers</div>
+      <div class="reveal-board" id="revealBoard"></div>
+      <div style="width:100%;text-align:center">
+        <button class="ctrl" onclick="proceedAfterList()" id="btnProceed" style="opacity:0;pointer-events:none;transition:opacity .4s ease">Continue ▶</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== MONEY ROUND SCREEN ===================== -->
+  <div class="screen" id="screen-money">
+    <div class="round-flag"><b id="moneyChampion"></b> — MONEY ROUND</div>
+
+    <div class="catcard">
+      <div class="label">Category</div>
+      <div class="topic" id="moneyTopic"></div>
+      <div class="badges" id="moneyBadges"></div>
+    </div>
+
+    <div id="moneyPlayPanel">
+      <div class="ladder-wrap" id="moneyLadder"></div>
+      <div class="answer-input-row">
+        <input id="moneyInput" placeholder="Type the answer given out loud…" autocomplete="off" spellcheck="false">
+        <button onclick="submitMoneyAnswer()">Submit</button>
+      </div>
+      <details class="answer-key">
+        <summary>📋 Reveal accepted answers (host only — keep hidden from teams)</summary>
+        <div class="list" id="moneyKeyList"></div>
+        <div class="warn">Don't let students see this panel!</div>
+      </details>
+    </div>
+
+    <div id="moneyBankPanel" style="display:none;width:100%">
+      <div class="bank-prompt">
+        <div class="amt" id="bankAmt"></div>
+        <div class="q">Bank the winnings and stop, or push on for more — and risk losing it all?</div>
+        <div class="bank-actions">
+          <button class="bankbtn stop" onclick="bankMoney()">🏦 Bank it &amp; stop</button>
+          <button class="bankbtn push" onclick="pushLuck()">🔥 Push my luck</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== END SCREEN ===================== -->
+  <div class="screen" id="screen-end">
+    <div class="end-card">
+      <h2 id="endTitle"></h2>
+      <p id="endSub"></p>
+      <div class="amt" id="endAmt"></div>
+    </div>
+    <div class="reveal-heading">Money Round — full answer list</div>
+    <div class="reveal-board" id="endRevealBoard"></div>
+    <div class="end-buttons">
+      <button class="ctrl" onclick="playAgainSameTeams()">↩ Same teams, play again</button>
+      <button class="ctrl ghost" onclick="backToSetup()">New match</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ================================================================
+   WHO DARES WINS — Science Edition
+   A classroom adaptation of the ITV/BBC "list bidding" game show:
+   teams alternate raising a bid or daring their opponent to prove
+   it; whoever is dared must name that many correct, unrepeated
+   answers without a slip. First to 2 list wins becomes champion and
+   plays the Money Round. The host judges answers against a hidden
+   category key rather than free-text matching, since answers are
+   given out loud in class.
+   ================================================================ */
+
+/* ----------------------------------------------------------------
+   AUDIO
+   ---------------------------------------------------------------- */
+const AC = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
+const getCtx = () => { if (!audioCtx) audioCtx = new AC(); return audioCtx; };
+function playTone(freq, type, dur, vol, delay = 0) {
+  const ac = getCtx();
+  const osc = ac.createOscillator(), g = ac.createGain();
+  osc.connect(g); g.connect(ac.destination);
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, ac.currentTime + delay);
+  g.gain.setValueAtTime(vol, ac.currentTime + delay);
+  g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + delay + dur);
+  osc.start(ac.currentTime + delay);
+  osc.stop(ac.currentTime + delay + dur);
+}
+const playPing  = () => [523,659,784].forEach((f,i)=>playTone(f,'sine',0.3,0.35,i*0.07));
+const playBuzz  = () => playTone(110,'sawtooth',0.5,0.3);
+const playFanfare = () => [523,659,784,1047].forEach((f,i)=>playTone(f,'sine',0.45,0.35,i*0.12));
+
+/* ================================================================
+   CATEGORY BANK — KS3 & GCSE science "name as many as you can" lists.
+   Pool sizes vary deliberately (7-20) so bidding has real range.
+   ================================================================ */
+const CATEGORY_DATA = [
+  { subject:'Biology', level:'KS3', topic:'Organs in the human body',
+    answers:['Heart','Lungs','Liver','Kidneys','Brain','Stomach','Pancreas','Small intestine','Large intestine','Bladder','Skin','Spleen','Gall bladder','Oesophagus','Trachea','Diaphragm','Appendix','Tongue','Ovaries','Testes'] },
+  { subject:'Biology', level:'KS3', topic:'Bones in the human skeleton',
+    answers:['Skull','Ribs','Spine','Sternum','Pelvis','Femur','Tibia','Fibula','Humerus','Radius','Ulna','Clavicle','Scapula','Patella','Mandible','Carpals','Metacarpals','Tarsals','Metatarsals','Phalanges'] },
+  { subject:'Biology', level:'GCSE', topic:'Sub-cellular structures',
+    answers:['Nucleus','Cytoplasm','Cell membrane','Mitochondria','Ribosomes','Cell wall','Chloroplast','Permanent vacuole','Plasmid','Flagellum','Golgi apparatus','Endoplasmic reticulum','Lysosome','Nucleolus','Pili'] },
+  { subject:'Biology', level:'GCSE', topic:'Vitamins the body needs',
+    answers:['Vitamin A','Vitamin B1','Vitamin B2','Vitamin B3','Vitamin B6','Vitamin B9 (folate)','Vitamin B12','Vitamin C','Vitamin D','Vitamin E','Vitamin K'] },
+  { subject:'Biology', level:'GCSE', topic:'Diseases and pathogens',
+    answers:['Measles','Chickenpox','Influenza','HIV','Tobacco mosaic virus','Salmonella','Cholera','Athlete’s foot','Malaria','Rose black spot','Tuberculosis','E. coli','MRSA','Norovirus','COVID-19'] },
+  { subject:'Biology', level:'GCSE', topic:'Parts of the eye',
+    answers:['Cornea','Iris','Pupil','Lens','Retina','Optic nerve','Sclera','Ciliary muscles','Suspensory ligaments','Vitreous humour','Aqueous humour','Conjunctiva','Fovea','Choroid','Blind spot'] },
+  { subject:'Biology', level:'KS3', topic:'Parts of the digestive system',
+    answers:['Mouth','Salivary glands','Oesophagus','Stomach','Liver','Gall bladder','Pancreas','Small intestine','Large intestine','Rectum','Anus','Tongue','Teeth','Bile duct','Villi'] },
+  { subject:'Biology', level:'GCSE', topic:'Methods of contraception',
+    answers:['Male condom','Female condom','Diaphragm','Combined pill','Progesterone-only pill','Implant','Injection','Patch','Copper IUD','Hormonal IUS','Spermicide','Sterilisation','Abstinence','Natural family planning','Vasectomy'] },
+  { subject:'Biology', level:'KS3', topic:'Parts of a leaf',
+    answers:['Cuticle','Upper epidermis','Palisade mesophyll','Spongy mesophyll','Guard cell','Stoma','Lower epidermis','Xylem','Phloem','Midrib','Petiole','Vein'] },
+  { subject:'Biology', level:'GCSE', topic:'The nervous system',
+    answers:['Dendrite','Cell body','Axon','Myelin sheath','Axon terminal','Synapse','Receptor','Effector','Neurotransmitter','Reflex arc','Sensory neurone','Motor neurone','Relay neurone','Central nervous system','Peripheral nervous system'] },
+  { subject:'Biology', level:'GCSE', topic:'The heart and circulatory system',
+    answers:['Right atrium','Left atrium','Right ventricle','Left ventricle','Aorta','Vena cava','Pulmonary artery','Pulmonary vein','Valves','Septum','Coronary artery','Artery','Vein','Capillary','Red blood cell','White blood cell','Platelet','Plasma'] },
+  { subject:'Biology', level:'KS3', topic:'Nutrients and food groups',
+    answers:['Carbohydrates','Proteins','Fats','Vitamins','Minerals','Fibre','Water','Sugars','Starch','Cholesterol'] },
+  { subject:'Biology', level:'GCSE', topic:'Hormones in the human body',
+    answers:['Insulin','Glucagon','Adrenaline','Thyroxine','Testosterone','Oestrogen','Progesterone','FSH','LH','ADH'] },
+
+  { subject:'Chemistry', level:'KS3', topic:'Laboratory apparatus',
+    answers:['Beaker','Conical flask','Measuring cylinder','Test tube','Boiling tube','Bunsen burner','Tripod','Gauze','Evaporating basin','Thermometer','Spatula','Funnel','Filter paper','Pipette','Burette','Clamp stand','Crucible','Watch glass','Test tube rack','Safety goggles'] },
+  { subject:'Chemistry', level:'GCSE', topic:'Elements in the first 20 of the periodic table',
+    answers:['Hydrogen','Helium','Lithium','Beryllium','Boron','Carbon','Nitrogen','Oxygen','Fluorine','Neon','Sodium','Magnesium','Aluminium','Silicon','Phosphorus','Sulfur','Chlorine','Argon','Potassium','Calcium'] },
+  { subject:'Chemistry', level:'KS3', topic:'Techniques to separate mixtures',
+    answers:['Filtration','Evaporation','Crystallisation','Simple distillation','Fractional distillation','Chromatography','Decanting','Sieving','Using a magnet','Centrifuging'] },
+  { subject:'Chemistry', level:'GCSE', topic:'Metals of the reactivity series',
+    answers:['Potassium','Sodium','Lithium','Calcium','Magnesium','Aluminium','Zinc','Iron','Tin','Lead','Copper','Silver','Gold','Platinum'] },
+  { subject:'Chemistry', level:'GCSE', topic:'The first fifteen alkanes',
+    answers:['Methane','Ethane','Propane','Butane','Pentane','Hexane','Heptane','Octane','Nonane','Decane','Undecane','Dodecane','Tridecane','Tetradecane','Pentadecane'] },
+  { subject:'Chemistry', level:'GCSE', topic:'Types of chemical reaction',
+    answers:['Combustion','Oxidation','Reduction','Neutralisation','Precipitation','Thermal decomposition','Electrolysis','Polymerisation','Fermentation','Displacement','Exothermic reaction','Endothermic reaction'] },
+  { subject:'Chemistry', level:'KS3', topic:'Gases found in the air',
+    answers:['Nitrogen','Oxygen','Argon','Carbon dioxide','Water vapour','Neon','Helium','Methane','Hydrogen','Ozone'] },
+  { subject:'Chemistry', level:'GCSE', topic:'Chemical symbols of elements 1-20',
+    answers:['H','He','Li','Be','B','C','N','O','F','Ne','Na','Mg','Al','Si','P','S','Cl','Ar','K','Ca'] },
+  { subject:'Chemistry', level:'KS3', topic:'Common acids, alkalis and indicators',
+    answers:['Hydrochloric acid','Sulfuric acid','Nitric acid','Citric acid','Ethanoic acid','Sodium hydroxide','Potassium hydroxide','Ammonia','Calcium hydroxide','Magnesium hydroxide','Litmus','Universal indicator','Phenolphthalein','Methyl orange','Sodium hydrogencarbonate'] },
+
+  { subject:'Physics', level:'KS3', topic:'Types of force',
+    answers:['Gravity','Friction','Air resistance','Water resistance','Upthrust','Tension','Compression','Normal contact force','Magnetic force','Electrostatic force','Thrust','Lift'] },
+  { subject:'Physics', level:'KS3', topic:'Objects in the solar system',
+    answers:['Sun','Mercury','Venus','Earth','Mars','Jupiter','Saturn','Uranus','Neptune','Moon','Asteroid','Comet','Pluto','Meteor'] },
+  { subject:'Physics', level:'GCSE', topic:'Circuit components',
+    answers:['Cell','Battery','Switch','Bulb','Resistor','Variable resistor','Ammeter','Voltmeter','Diode','Fuse','LED','Buzzer','Motor','Thermistor','LDR'] },
+  { subject:'Physics', level:'GCSE', topic:'Energy resources used to generate electricity',
+    answers:['Coal','Oil','Natural gas','Nuclear','Solar','Wind','Hydroelectric','Tidal','Wave','Geothermal','Biofuel'] },
+  { subject:'Physics', level:'GCSE', topic:'Units of measurement in physics',
+    answers:['Metre','Kilogram','Second','Newton','Joule','Watt','Volt','Ohm','Ampere','Pascal','Hertz','Kelvin','Coulomb'] },
+  { subject:'Physics', level:'GCSE', topic:'Types of electromagnetic wave',
+    answers:['Radio waves','Microwaves','Infrared','Visible light','Ultraviolet','X-rays','Gamma rays'] },
+  { subject:'Physics', level:'KS3', topic:'Famous scientists',
+    answers:['Isaac Newton','Albert Einstein','Charles Darwin','Marie Curie','Gregor Mendel','Robert Hooke','Niels Bohr','Ernest Rutherford','John Dalton','Dmitri Mendeleev','Michael Faraday','Stephen Hawking','Rosalind Franklin','Alexander Fleming','Louis Pasteur','Antoine Lavoisier'] },
+  { subject:'Physics', level:'KS3', topic:'Forms of energy',
+    answers:['Kinetic energy','Gravitational potential energy','Elastic potential energy','Chemical energy','Thermal energy','Electrical energy','Sound energy','Light energy','Nuclear energy','Magnetic energy'] },
+  { subject:'Physics', level:'GCSE', topic:'Wave properties and behaviours',
+    answers:['Amplitude','Wavelength','Frequency','Period','Speed','Trough','Crest','Reflection','Refraction','Diffraction','Longitudinal wave','Transverse wave','Node','Antinode'] },
+  { subject:'Physics', level:'GCSE', topic:'Electromagnetic devices',
+    answers:['Electric motor','Generator','Loudspeaker','Transformer','Relay','Electric bell','Circuit breaker','Microphone','Solenoid','Electromagnet','Induction hob','Maglev train'] },
+  { subject:'Physics', level:'GCSE', topic:'Radiation and nuclear terms',
+    answers:['Alpha particle','Beta particle','Gamma ray','Neutron','Half-life','Isotope','Radioactive decay','Background radiation','Ionising radiation','Nuclear fission','Nuclear fusion','Contamination','Irradiation'] },
+];
+
+/* ----------------------------------------------------------------
+   SETUP STATE
+   ---------------------------------------------------------------- */
+const setupFilters = { subjects: new Set(['Biology','Chemistry','Physics']), level: 'All' };
+
+function poolForFilters() {
+  return CATEGORY_DATA.filter(c =>
+    setupFilters.subjects.has(c.subject) &&
+    (setupFilters.level === 'All' || c.level === setupFilters.level));
+}
+
+function updatePoolNote() {
+  const n = poolForFilters().length;
+  $('poolNote').textContent = n
+    ? `${n} categor${n === 1 ? 'y' : 'ies'} available with these filters.`
+    : 'No categories match — turn at least one subject back on.';
+}
+
+document.getElementById('subjRow').addEventListener('click', e => {
+  const chip = e.target.closest('.chip');
+  if (!chip) return;
+  const subj = chip.dataset.subj;
+  if (chip.classList.contains('on')) {
+    if (setupFilters.subjects.size === 1) return; // keep at least one on
+    setupFilters.subjects.delete(subj);
+    chip.classList.remove('on');
+  } else {
+    setupFilters.subjects.add(subj);
+    chip.classList.add('on');
+  }
+  updatePoolNote();
+});
+
+document.getElementById('levelRow').addEventListener('click', e => {
+  const chip = e.target.closest('.chip');
+  if (!chip) return;
+  document.querySelectorAll('#levelRow .chip').forEach(c => c.classList.remove('on'));
+  chip.classList.add('on');
+  setupFilters.level = chip.dataset.lvl;
+  updatePoolNote();
+});
+
+/* ----------------------------------------------------------------
+   MATCH STATE
+   ---------------------------------------------------------------- */
+const $ = id => document.getElementById(id);
+
+const Match = {
+  teamName: { A: 'Team A', B: 'Team B' },
+  listsWon: { A: 0, B: 0 },
+  listNumber: 1,
+  usedTopics: new Set(),
+  champion: null,
+};
+
+const Bid = { value: 0, teamOnBid: null, turnTeam: 'A' };
+const Answering = { team: null, target: 0, count: 0, category: null, usedSet: null, filled: null };
+const Tiebreak = { turnTeam: 'A', category: null, usedSet: null, filled: null };
+const Money = { count: 0, banked: 0, category: null, usedSet: null, filled: null };
+
+// Guards a phase's answer input from firing again after that phase has
+// already resolved (e.g. a fast double-submit landing before the panel
+// swap repaints), and while the "flash red" pause is playing out.
+let roundLocked = false;
+
+const MONEY_LADDER = [
+  { n:3,  prize:5000  },
+  { n:6,  prize:10000 },
+  { n:9,  prize:15000 },
+  { n:12, prize:25000 },
+  { n:15, prize:50000 },
+];
+
+function other(team) { return team === 'A' ? 'B' : 'A'; }
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $(id).classList.add('active');
+}
+
+function pickCategory() {
+  let pool = poolForFilters().filter(c => !Match.usedTopics.has(c.topic));
+  if (!pool.length) pool = poolForFilters(); // reuse if we've exhausted the filtered pool
+  const cat = pool[Math.floor(Math.random() * pool.length)];
+  Match.usedTopics.add(cat.topic);
+  return cat;
+}
+
+const MONEY_MIN_ANSWERS = 15; // the ladder climbs to 15, so the category needs at least that many
+
+/** Like pickCategory(), but prefers categories with a big enough pool to
+ *  plausibly reach the top of the money ladder. Falls back gracefully if
+ *  the subject/level filters don't leave any large-enough category. */
+function pickMoneyCategory() {
+  const base = poolForFilters();
+  let pool = base.filter(c => c.answers.length >= MONEY_MIN_ANSWERS && !Match.usedTopics.has(c.topic));
+  if (!pool.length) pool = base.filter(c => c.answers.length >= MONEY_MIN_ANSWERS);
+  if (!pool.length) pool = base.filter(c => !Match.usedTopics.has(c.topic));
+  if (!pool.length) pool = base;
+  const cat = pool[Math.floor(Math.random() * pool.length)];
+  Match.usedTopics.add(cat.topic);
+  return cat;
+}
+
+/* ----------------------------------------------------------------
+   ANSWER MATCHING
+   The host types what the team said; this is checked against the
+   category's accepted answers (case/punctuation-insensitive). Where
+   an answer has a bracketed alternative name — e.g. "Vitamin B9
+   (folate)" — either the main term or the bracketed term is accepted.
+   ---------------------------------------------------------------- */
+function normalize(s) { return s.toLowerCase().replace(/[^a-z0-9]/g, ''); }
+
+function acceptableForms(answerText) {
+  const forms = new Set();
+  forms.add(normalize(answerText.replace(/\s*\([^)]*\)/g, '')));
+  const paren = answerText.match(/\(([^)]+)\)/);
+  if (paren) forms.add(normalize(paren[1]));
+  return forms;
+}
+
+/** Index into category.answers for an unused match, or -1 if none. */
+function findAnswerIndex(category, usedSet, guess) {
+  const g = normalize(guess);
+  if (!g) return -1;
+  for (let i = 0; i < category.answers.length; i++) {
+    if (usedSet.has(i)) continue;
+    if (acceptableForms(category.answers[i]).has(g)) return i;
+  }
+  return -1;
+}
+
+function renderKeyList(elId, category, usedSet) {
+  $(elId).innerHTML = category.answers.map((a, i) =>
+    `<div${usedSet && usedSet.has(i) ? ' style="opacity:.35;text-decoration:line-through"' : ''}>${a}</div>`
+  ).join('');
+}
+
+/* ----------------------------------------------------------------
+   LADDER RENDERING
+   Generic climbing ladder used by the list rounds and the money
+   round: `size` blank cells, filled from the bottom (position 1) up
+   as correct answers come in. `milestones` (money round only) adds a
+   cash badge to specific rungs.
+   ---------------------------------------------------------------- */
+function renderLadder(containerId, size, filledTexts, milestones) {
+  const el = $(containerId);
+  el.innerHTML = '';
+  for (let pos = 1; pos <= size; pos++) {
+    const cell = document.createElement('div');
+    cell.className = 'ladder-cell';
+    const milestone = milestones && milestones.find(m => m.n === pos);
+    if (milestone) cell.classList.add('milestone');
+    const filled = filledTexts[pos - 1];
+    if (filled) {
+      cell.classList.add('filled');
+      cell.innerHTML = `<span>${filled}</span>` + (milestone ? `<span class="rung-prize">£${milestone.prize.toLocaleString()}</span>` : '');
+    } else {
+      cell.innerHTML = `<span>${pos}</span>` + (milestone ? `<span class="rung-prize">£${milestone.prize.toLocaleString()}</span>` : '');
+    }
+    el.appendChild(cell);
+  }
+}
+
+/** Briefly flashes a ladder red to signal a wrong/repeated/stuck answer. */
+function flashLadderWrong(containerId, callback) {
+  const el = $(containerId);
+  el.classList.add('flash-wrong');
+  setTimeout(() => {
+    el.classList.remove('flash-wrong');
+    callback();
+  }, 550);
+}
+
+/* ----------------------------------------------------------------
+   REVEAL BOARD
+   Shown at the end of a list: every accepted answer tiles in, one by
+   one, in a staggered "blinds opening" cascade (see the reveal-tile
+   keyframes in the stylesheet).
+   ---------------------------------------------------------------- */
+const REVEAL_TILE_STAGGER_MS = 55;
+
+function renderRevealBoard(containerId, category) {
+  $(containerId).innerHTML = category.answers.map((a, i) =>
+    `<div class="reveal-tile" style="animation-delay:${i * REVEAL_TILE_STAGGER_MS}ms">${a}</div>`
+  ).join('');
+}
+
+function revealDuration(category) {
+  return category.answers.length * REVEAL_TILE_STAGGER_MS + 450;
+}
+
+/** Populates the list-result reveal board and fades in the Continue
+ *  button only once the tile cascade has finished playing. */
+function showListReveal(category) {
+  renderRevealBoard('revealBoard', category);
+  const btn = $('btnProceed');
+  btn.style.opacity = '0';
+  btn.style.pointerEvents = 'none';
+  setTimeout(() => {
+    btn.style.opacity = '1';
+    btn.style.pointerEvents = 'auto';
+  }, revealDuration(category));
+}
+
+/* ----------------------------------------------------------------
+   SETUP -> MATCH START
+   ---------------------------------------------------------------- */
+function startMatch() {
+  if (!poolForFilters().length) { alert('Please turn on at least one subject.'); return; }
+  Match.teamName.A = $('teamAInput').value.trim() || 'Team A';
+  Match.teamName.B = $('teamBInput').value.trim() || 'Team B';
+  Match.listsWon = { A: 0, B: 0 };
+  Match.listNumber = 1;
+  Match.usedTopics = new Set();
+  Match.champion = null;
+
+  $('scNameA').textContent = Match.teamName.A;
+  $('scNameB').textContent = Match.teamName.B;
+
+  showScreen('screen-game');
+  startList();
+}
+
+/* ----------------------------------------------------------------
+   LIST ROUND: BIDDING
+   ---------------------------------------------------------------- */
+function startList() {
+  $('roundFlag').innerHTML = `LIST <b>${Match.listNumber}</b> of up to 3`;
+  updateScorebar();
+
+  Answering.category = pickCategory();
+  renderCategoryCard(Answering.category);
+
+  Bid.value = 0;
+  Bid.teamOnBid = null;
+  Bid.turnTeam = Match.listNumber % 2 === 1 ? 'A' : 'B';
+
+  $('panelBidding').style.display = 'block';
+  $('panelAnswering').style.display = 'none';
+  $('panelTiebreak').style.display = 'none';
+  $('panelListResult').style.display = 'none';
+
+  renderBidPanel();
+}
+
+function renderCategoryCard(category) {
+  $('catLabelText').textContent = 'Category';
+  $('catTopic').textContent = category.topic;
+  $('catBadges').innerHTML = `
+    <span class="badge">${category.subject}</span>
+    <span class="badge">${category.level}</span>
+    <span class="badge">${category.answers.length} possible answers</span>`;
+}
+
+function updateScorebar() {
+  $('scNumA').textContent = Match.listsWon.A;
+  $('scNumB').textContent = Match.listsWon.B;
+  $('scardA').classList.toggle('turn', Bid.turnTeam === 'A' && $('panelBidding').style.display !== 'none');
+  $('scardB').classList.toggle('turn', Bid.turnTeam === 'B' && $('panelBidding').style.display !== 'none');
+}
+
+function renderBidPanel() {
+  const turnName = Match.teamName[Bid.turnTeam];
+  $('bidNum').textContent = Bid.value;
+  $('bidHolder').textContent = Bid.teamOnBid ? `Standing bid by ${Match.teamName[Bid.teamOnBid]}` : 'No bid yet';
+  $('bidTurn').innerHTML = `<span style="color:${Bid.turnTeam === 'A' ? 'var(--teamA)' : 'var(--teamB)'}">${turnName}</span>'s turn`;
+
+  $('btnRaise').textContent = `${turnName}: bid ${Bid.value + 1}`;
+  $('btnDare').textContent = Bid.value >= 1
+    ? `${turnName}: DARE ${Match.teamName[Bid.teamOnBid]} to play at ${Bid.value}`
+    : `${turnName}: DARE (need a bid first)`;
+  $('btnDare').disabled = Bid.value < 1;
+
+  $('scardA').classList.toggle('turn', Bid.turnTeam === 'A');
+  $('scardB').classList.toggle('turn', Bid.turnTeam === 'B');
+}
+
+function raiseBid() {
+  Bid.value++;
+  Bid.teamOnBid = Bid.turnTeam;
+  Bid.turnTeam = other(Bid.turnTeam);
+  renderBidPanel();
+}
+
+function dareOpponent() {
+  if (Bid.value < 1) return;
+  roundLocked = false;
+  Answering.team = Bid.teamOnBid;
+  Answering.target = Bid.value;
+  Answering.count = 0;
+  Answering.usedSet = new Set();
+  Answering.filled = new Array(Answering.target).fill(null);
+
+  $('panelBidding').style.display = 'none';
+  $('panelAnswering').style.display = 'block';
+  $('scardA').classList.remove('turn');
+  $('scardB').classList.remove('turn');
+
+  renderAnswerPanel();
+  renderKeyList('answerKeyList', Answering.category, Answering.usedSet);
+  const input = $('answerInput');
+  input.value = '';
+  input.focus();
+  input.onkeydown = e => { if (e.key === 'Enter') submitListAnswer(); };
+}
+
+/* ----------------------------------------------------------------
+   LIST ROUND: ANSWERING
+   ---------------------------------------------------------------- */
+function renderAnswerPanel() {
+  const teamName = Match.teamName[Answering.team];
+  $('answerWho').innerHTML = `<span style="color:${Answering.team === 'A' ? 'var(--teamA)' : 'var(--teamB)'}">${teamName}</span> must name ${Answering.target} correct answer${Answering.target === 1 ? '' : 's'} without a slip`;
+  renderLadder('answerLadder', Answering.target, Answering.filled);
+}
+
+function submitListAnswer() {
+  if (roundLocked) return;
+  const input = $('answerInput');
+  const guess = input.value.trim();
+  if (!guess) return;
+  input.value = '';
+
+  const idx = findAnswerIndex(Answering.category, Answering.usedSet, guess);
+  if (idx === -1) {
+    roundLocked = true;
+    playBuzz();
+    flashLadderWrong('answerLadder', () => resolveList(other(Answering.team)));
+    return;
+  }
+
+  Answering.usedSet.add(idx);
+  Answering.count++;
+  Answering.filled[Answering.count - 1] = Answering.category.answers[idx];
+  renderLadder('answerLadder', Answering.target, Answering.filled);
+  renderKeyList('answerKeyList', Answering.category, Answering.usedSet);
+
+  if (Answering.count >= Answering.target) {
+    roundLocked = true;
+    playFanfare();
+    setTimeout(() => resolveList(Answering.team), 300);
+  } else {
+    playPing();
+    input.focus();
+  }
+}
+
+function resolveList(winningTeam) {
+  roundLocked = true;
+  Match.listsWon[winningTeam]++;
+  updateScorebar();
+
+  $('panelAnswering').style.display = 'none';
+  $('panelListResult').style.display = 'block';
+
+  const banner = $('listResultBanner');
+  const losingTeam = other(winningTeam);
+  const wasSuccess = winningTeam === Answering.team;
+  banner.className = 'result-banner win';
+  $('listResultText').textContent = `${Match.teamName[winningTeam]} win the list!`;
+  $('listResultSub').textContent = wasSuccess
+    ? `They named all ${Answering.target} correctly.`
+    : `${Match.teamName[losingTeam]} couldn't reach ${Answering.target} — the list goes to ${Match.teamName[winningTeam]}.`;
+
+  $('btnProceed').textContent =
+    (Match.listsWon.A === 2 || Match.listsWon.B === 2) ? 'See champion ▶' :
+    (Match.listsWon.A === 1 && Match.listsWon.B === 1) ? 'Go to tiebreaker ▶' : 'Next list ▶';
+
+  showListReveal(Answering.category);
+}
+
+function proceedAfterList() {
+  if (Match.listsWon.A === 2 || Match.listsWon.B === 2) {
+    Match.champion = Match.listsWon.A === 2 ? 'A' : 'B';
+    startMoneyRoundIntro();
+  } else if (Match.listsWon.A === 1 && Match.listsWon.B === 1) {
+    startTiebreak();
+  } else {
+    Match.listNumber++;
+    startList();
+  }
+}
+
+/* ----------------------------------------------------------------
+   TIEBREAKER (1-1): sudden death, alternating single answers
+   ---------------------------------------------------------------- */
+function startTiebreak() {
+  roundLocked = false;
+  $('roundFlag').innerHTML = `<b>TIEBREAKER</b> — sudden death`;
+  Tiebreak.category = pickCategory();
+  Tiebreak.turnTeam = Match.listNumber % 2 === 1 ? 'B' : 'A'; // alternate who starts
+  Tiebreak.usedSet = new Set();
+  Tiebreak.filled = [];
+  renderCategoryCard(Tiebreak.category);
+  renderKeyList('tbKeyList', Tiebreak.category, Tiebreak.usedSet);
+
+  $('panelBidding').style.display = 'none';
+  $('panelAnswering').style.display = 'none';
+  $('panelListResult').style.display = 'none';
+  $('panelTiebreak').style.display = 'block';
+
+  renderTiebreakPanel();
+  const input = $('tbInput');
+  input.value = '';
+  input.focus();
+  input.onkeydown = e => { if (e.key === 'Enter') submitTiebreakAnswer(); };
+}
+
+function renderTiebreakPanel() {
+  const teamName = Match.teamName[Tiebreak.turnTeam];
+  $('tbWho').innerHTML = `<span style="color:${Tiebreak.turnTeam === 'A' ? 'var(--teamA)' : 'var(--teamB)'}">${teamName}</span>'s turn to answer`;
+  $('scardA').classList.toggle('turn', Tiebreak.turnTeam === 'A');
+  $('scardB').classList.toggle('turn', Tiebreak.turnTeam === 'B');
+  renderTiebreakLadder();
+}
+
+function renderTiebreakLadder() {
+  const el = $('tbLadder');
+  el.innerHTML = Tiebreak.filled.map(entry =>
+    `<div class="ladder-cell filled team${entry.team}"><span>${entry.text}</span></div>`
+  ).join('');
+}
+
+function submitTiebreakAnswer() {
+  if (roundLocked) return;
+  const input = $('tbInput');
+  const guess = input.value.trim();
+  if (!guess) return;
+  input.value = '';
+
+  const idx = findAnswerIndex(Tiebreak.category, Tiebreak.usedSet, guess);
+  if (idx === -1) {
+    roundLocked = true;
+    playBuzz();
+    flashLadderWrong('tbLadder', resolveTiebreakWrong);
+    return;
+  }
+
+  Tiebreak.usedSet.add(idx);
+  Tiebreak.filled.push({ text: Tiebreak.category.answers[idx], team: Tiebreak.turnTeam });
+  renderKeyList('tbKeyList', Tiebreak.category, Tiebreak.usedSet);
+  playPing();
+  Tiebreak.turnTeam = other(Tiebreak.turnTeam);
+  renderTiebreakPanel();
+  input.focus();
+}
+
+function resolveTiebreakWrong() {
+  const winner = other(Tiebreak.turnTeam);
+  Match.listsWon[winner]++; // reflect the decisive win on the scoreboard
+  updateScorebar();
+  $('panelTiebreak').style.display = 'none';
+  $('panelListResult').style.display = 'block';
+  $('listResultBanner').className = 'result-banner win';
+  $('listResultText').textContent = `${Match.teamName[winner]} win the tiebreaker!`;
+  $('listResultSub').textContent = `${Match.teamName[Tiebreak.turnTeam]} slipped up — ${Match.teamName[winner]} are champions.`;
+  $('btnProceed').textContent = 'See champion ▶';
+  Match.champion = winner;
+
+  showListReveal(Tiebreak.category);
+}
+
+/* ----------------------------------------------------------------
+   MONEY ROUND
+   ---------------------------------------------------------------- */
+function startMoneyRoundIntro() {
+  roundLocked = false;
+  Money.count = 0;
+  Money.banked = 0;
+  Money.category = pickMoneyCategory();
+  Money.usedSet = new Set();
+  Money.capSize = Math.min(15, Money.category.answers.length);
+  Money.filled = new Array(Money.capSize).fill(null);
+
+  $('moneyChampion').textContent = Match.teamName[Match.champion];
+  $('moneyTopic').textContent = Money.category.topic;
+  $('moneyBadges').innerHTML = `<span class="badge">${Money.category.subject}</span><span class="badge">${Money.category.level}</span>`;
+  renderKeyList('moneyKeyList', Money.category, Money.usedSet);
+  renderMoneyLadder();
+  $('moneyPlayPanel').style.display = 'block';
+  $('moneyBankPanel').style.display = 'none';
+
+  showScreen('screen-money');
+  const input = $('moneyInput');
+  input.value = '';
+  input.focus();
+  input.onkeydown = e => { if (e.key === 'Enter') submitMoneyAnswer(); };
+}
+
+function renderMoneyLadder() {
+  renderLadder('moneyLadder', Money.capSize, Money.filled, MONEY_LADDER.filter(r => r.n <= Money.capSize));
+}
+
+function submitMoneyAnswer() {
+  if (roundLocked) return;
+  const input = $('moneyInput');
+  const guess = input.value.trim();
+  if (!guess) return;
+  input.value = '';
+
+  const idx = findAnswerIndex(Money.category, Money.usedSet, guess);
+  if (idx === -1) {
+    roundLocked = true;
+    playBuzz();
+    flashLadderWrong('moneyLadder', () => {
+      Money.banked = 0;
+      finishMatch();
+    });
+    return;
+  }
+
+  Money.usedSet.add(idx);
+  Money.count++;
+  Money.filled[Money.count - 1] = Money.category.answers[idx];
+  renderMoneyLadder();
+  renderKeyList('moneyKeyList', Money.category, Money.usedSet);
+
+  const rung = MONEY_LADDER.find(r => r.n === Money.count);
+  if (Money.count === Money.capSize) {
+    // Topped out the ladder (or ran out of possible answers in this category)
+    roundLocked = true;
+    playFanfare();
+    Money.banked = MONEY_LADDER.filter(r => r.n <= Money.count).pop()?.prize || 0;
+    setTimeout(finishMatch, 300);
+  } else if (rung) {
+    playFanfare();
+    roundLocked = true;
+    $('bankAmt').textContent = `£${rung.prize.toLocaleString()}`;
+    $('moneyPlayPanel').style.display = 'none';
+    $('moneyBankPanel').style.display = 'block';
+  } else {
+    playPing();
+    input.focus();
+  }
+}
+
+function bankMoney() {
+  const rung = MONEY_LADDER.filter(r => r.n <= Money.count).pop();
+  Money.banked = rung ? rung.prize : 0;
+  finishMatch();
+}
+
+function pushLuck() {
+  roundLocked = false;
+  $('moneyBankPanel').style.display = 'none';
+  $('moneyPlayPanel').style.display = 'block';
+  const input = $('moneyInput');
+  input.value = '';
+  input.focus();
+}
+
+/* ----------------------------------------------------------------
+   END SCREEN
+   ---------------------------------------------------------------- */
+function finishMatch() {
+  $('endTitle').textContent = `🏆 ${Match.teamName[Match.champion]} are champions!`;
+  if (Money.banked > 0) {
+    $('endSub').textContent = 'Money Round winnings:';
+    $('endAmt').textContent = `£${Money.banked.toLocaleString()}`;
+  } else {
+    $('endSub').textContent = 'The Money Round didn’t pay out this time — better luck next match!';
+    $('endAmt').textContent = '£0';
+  }
+  renderRevealBoard('endRevealBoard', Money.category);
+  showScreen('screen-end');
+}
+
+function playAgainSameTeams() {
+  Match.listsWon = { A: 0, B: 0 };
+  Match.listNumber = 1;
+  Match.usedTopics = new Set();
+  Match.champion = null;
+  showScreen('screen-game');
+  startList();
+}
+
+function backToSetup() {
+  showScreen('screen-setup');
+}
+
+/* ----------------------------------------------------------------
+   INIT
+   ---------------------------------------------------------------- */
+updatePoolNote();
+</script>
+</body>
+</html>
